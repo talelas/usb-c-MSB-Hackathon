@@ -1,49 +1,128 @@
 # usb-c-MSB-Hackathon
-a repo for the hackathon held on 14-02-2026
 
-Perfect. I’ll give you a **clean, structured project context document** that you can paste directly into GitHub as:
+This repo contains the AI Minds multimodal ingestion pipeline (text, image, audio) plus a local caption server for Qwen2-VL.
 
+## Prerequisites
+
+- Windows PowerShell
+- Python 3.10+ with venv
+- Disk space for models (Qwen2-VL and sentence-transformers)
+- Optional: Ollama running at http://localhost:11434 (for summaries/keywords)
+
+## One-time setup
+
+From the repo root:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r photoingestion\requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r ai_minds_project\requirements.txt
 ```
-README.md
+
+If you already have the venv, just install missing deps:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install qwen-vl-utils faster-whisper sentence-transformers
 ```
 
-This will align everything we discussed into one clear architecture vision.
+## 1) Start the image caption server (Qwen2-VL)
 
-No fluff. Only system-level clarity.
+From the repo root:
+
+```powershell
+cd photoingestion
+..\.venv\Scripts\python.exe server.py
+```
+
+Expected logs:
+- "Model Loaded Successfully"
+- "Server running at http://127.0.0.1:5000"
+
+Note: This server responds to POST /analyze. Visiting the root URL in a browser shows "Not Found".
+
+## 2) Run media-only test (optional)
+
+Put test files here:
+- ai_minds_project/data/raw/media_only/test.jpg
+- ai_minds_project/data/raw/media_only/test.mp3
+
+Then run:
+
+```powershell
+cd ..\ai_minds_project
+..\.venv\Scripts\python.exe media_module_test.py
+```
+
+Expected:
+- Image caption shows non-empty text (may take 2-5 minutes on CPU)
+- Audio transcript shows non-empty text
+
+## 3) Run full pipeline
+
+```powershell
+cd ..\ai_minds_project
+..\.venv\Scripts\python.exe src\main.py
+```
+
+Outputs are written to:
+- ai_minds_project/output/metadata_embeddings.json
+- ai_minds_project/output/metadata_embeddings.csv
+
+## 4) (Optional) Qdrant demo
+
+If Qdrant is running locally, you can store and query media embeddings:
+
+```powershell
+cd ai_minds_project
+..\.venv\Scripts\python.exe qdrant_media_demo.py
+```
+
+## Troubleshooting
+
+- Caption timeouts on CPU: Increase PHOTO_INGESTION_TIMEOUT in ai_minds_project/src/config.py (and config.py).
+- "Not Found" in browser: Use POST http://127.0.0.1:5000/analyze, not the root URL.
+- Ollama timeouts: Start Ollama or disable summarization in the pipeline.
+
+## Useful paths
+
+- Caption server: photoingestion/server.py
+- Main pipeline: ai_minds_project/src/main.py
+- Media test: ai_minds_project/media_module_test.py
+- Config: ai_minds_project/src/config.py
 
 ---
 
-# 🧠 PROJECT CONTEXT — AI MINDS Cognitive Memory System
+# PROJECT CONTEXT — AI MINDS Cognitive Memory System
 
-## 🎯 Objective
+## Objective
 
-Build a **persistent multimodal cognitive assistant** that:
+Build a persistent multimodal cognitive assistant that:
 
-* Automatically ingests raw personal data
-* Converts it into structured semantic memory
-* Maintains relationships over time
-* Retrieves information using reasoning (not keyword matching)
-* Verifies its own answers before responding
-* Runs fully locally (LLM < 4B parameters)
+- Automatically ingests raw personal data
+- Converts it into structured semantic memory
+- Maintains relationships over time
+- Retrieves information using reasoning (not keyword matching)
+- Verifies its own answers before responding
+- Runs fully locally (LLM < 4B parameters)
 
 This is NOT a chatbot.
 
-This is a **Graph-Augmented Persistent Memory Engine**.
+This is a Graph-Augmented Persistent Memory Engine.
 
 ---
 
-# 🏗 High-Level Architecture
+# High-Level Architecture
 
-## 1️⃣ Multimodal Ingestion Layer
+## 1) Multimodal Ingestion Layer
 
 The system continuously ingests:
 
-* Text
-* PDF documents
-* Images
-* Audio
+- Text
+- PDF documents
+- Images
+- Audio
 
-Each input passes through a **modality adapter**:
+Each input passes through a modality adapter:
 
 ```
 Raw Data
@@ -57,45 +136,44 @@ Embedding Model
 
 Adapters:
 
-* PDF → text chunks
-* Image → caption model → text
-* Audio → speech-to-text → text
-* Text → cleaned & summarized
+- PDF → text chunks
+- Image → caption model → text
+- Audio → speech-to-text → text
+- Text → cleaned & summarized
 
 All modalities become unified semantic text.
 
 ---
 
-# 2️⃣ Dual Storage Strategy
+# 2) Dual Storage Strategy
 
 For each memory item, we store:
 
 ## Raw Layer
 
-* Original file
-* File path
-* Timestamp
+- Original file
+- File path
+- Timestamp
 
 ## Semantic Layer
 
-* Cleaned text summary
-* Embedding vector (256 dimensions)
-* Metadata vector:
-
-  * modality
-  * timestamp
-  * workspace
-  * importance score
-  * confidence score
-  * user interaction count
+- Cleaned text summary
+- Embedding vector (256 dimensions)
+- Metadata vector:
+  - modality
+  - timestamp
+  - workspace
+  - importance score
+  - confidence score
+  - user interaction count
 
 Storage backend suggestion:
 
-* **Qdrant** (vector DB with metadata filtering)
+- Qdrant (vector DB with metadata filtering)
 
 ---
 
-# 3️⃣ Vector + Metadata Coupled Representation
+# 3) Vector + Metadata Coupled Representation
 
 Each memory item =
 
@@ -106,28 +184,27 @@ Each memory item =
   text_summary,
   embedding[256],
   metadata {
-      modality,
-      timestamp,
-      importance,
-      confidence,
-      workspace,
-      interaction_score
+	  modality,
+	  timestamp,
+	  importance,
+	  confidence,
+	  workspace,
+	  interaction_score
   }
 }
 ```
 
-Metadata is NOT cosmetic.
-It influences retrieval scoring.
+Metadata is NOT cosmetic. It influences retrieval scoring.
 
 ---
 
-# 4️⃣ Graph Memory Construction
+# 4) Graph Memory Construction
 
 A semantic graph is built dynamically.
 
 Nodes:
 
-* Memory items
+- Memory items
 
 Edges:
 Weighted relationships based on:
@@ -135,36 +212,35 @@ Weighted relationships based on:
 ```
 Edge Weight =
   f(
-    semantic_similarity,
-    temporal_proximity,
-    shared_metadata,
-    co-occurrence,
+	semantic_similarity,
+	temporal_proximity,
+	shared_metadata,
+	co-occurrence,
   )
 ```
 
-This graph is NOT static.
-It evolves as new memories are added.
+This graph is NOT static. It evolves as new memories are added.
 
 Graph can be implemented using:
 
-* Lightweight graph layer (e.g. NetworkX)
-* Or adjacency stored in DB payload
+- Lightweight graph layer (e.g. NetworkX)
+- Or adjacency stored in DB payload
 
 ---
 
-# 5️⃣ Retrieval & Reasoning Pipeline
+# 5) Retrieval & Reasoning Pipeline
 
 When a user asks a question:
 
-### Step 1 — Semantic Retrieval
+## Step 1 — Semantic Retrieval
 
 Query embedding → top-k vectors from Qdrant.
 
-### Step 2 — Graph Expansion
+## Step 2 — Graph Expansion
 
 Expand neighborhood around top-k nodes.
 
-### Step 3 — Relevance Scoring
+## Step 3 — Relevance Scoring
 
 Final relevance score:
 
@@ -180,31 +256,29 @@ This prevents pure embedding search behavior.
 
 ---
 
-# 6️⃣ Self-Verification Layer
+# 6) Self-Verification Layer
 
 Before answering:
 
 1. Generate draft answer using retrieved nodes.
 2. Check:
-
-   * Does answer reference retrieved memory IDs?
-   * Is there semantic agreement among top nodes?
+   - Does answer reference retrieved memory IDs?
+   - Is there semantic agreement among top nodes?
 3. If confidence < threshold:
-
-   * Respond with uncertainty message.
+   - Respond with uncertainty message.
 
 This avoids confident hallucination.
 
 ---
 
-# 7️⃣ Memory Adaptation Mechanism
+# 7) Memory Adaptation Mechanism
 
 The system updates memory importance based on:
 
-* Query frequency
-* User feedback
-* Explicit reinforcement
-* Time decay
+- Query frequency
+- User feedback
+- Explicit reinforcement
+- Time decay
 
 Importance is dynamic.
 
@@ -212,7 +286,7 @@ Memory behaves cognitively.
 
 ---
 
-# 8️⃣ Temporal Reasoning
+# 8) Temporal Reasoning
 
 Recency affects retrieval but does not dominate.
 
@@ -224,105 +298,95 @@ recency_score = e^(-λ * time_difference)
 
 Allows:
 
-* Recent information prioritization
-* Old but important memories retained
+- Recent information prioritization
+- Old but important memories retained
 
 ---
 
-# 9️⃣ LLM Constraints
+# 9) LLM Constraints
 
 Must comply with:
 
-* Local open-source model
-* < 4B parameters
-* No proprietary APIs
+- Local open-source model
+- < 4B parameters
+- No proprietary APIs
 
 Possible models:
 
-* TinyLlama
-* Phi-2
-* Small Mistral quantized (if allowed)
+- TinyLlama
+- Phi-2
+- Small Mistral quantized (if allowed)
 
 Embedding model:
 
-* Lightweight local sentence-transformer
+- Lightweight local sentence-transformer
 
 ---
 
-# 🔥 Innovation Points
+# Innovation Points
 
 This system differs from standard RAG because:
 
-* It uses graph-augmented retrieval
-* It applies temporal reasoning
-* It maintains persistent memory
-* It performs self-verification
-* It adapts importance over time
+- It uses graph-augmented retrieval
+- It applies temporal reasoning
+- It maintains persistent memory
+- It performs self-verification
+- It adapts importance over time
 
 It behaves like a cognitive memory engine.
 
 ---
 
-# 🧩 Folder Structure Suggestion
+# Folder Structure Suggestion
 
 ```
 /core
-    ingestion.py
-    adapters/
-    embedding.py
-    storage.py
-    graph_builder.py
-    retrieval.py
-    reasoning.py
-    verification.py
+	ingestion.py
+	adapters/
+	embedding.py
+	storage.py
+	graph_builder.py
+	retrieval.py
+	reasoning.py
+	verification.py
 
 /models
-    local_llm/
-    embedding_model/
+	local_llm/
+	embedding_model/
 
 /database
-    qdrant_config/
+	qdrant_config/
 
 /api
-    main.py
+	main.py
 
 /ui
-    interface.py
+	interface.py
 ```
 
 ---
 
-# 🚀 System Flow Summary
+# System Flow Summary
 
 ```
 New Data →
-    Adapt →
-        Embed →
-            Store →
-                Update Graph
+	Adapt →
+		Embed →
+			Store →
+				Update Graph
 
 User Query →
-    Embed →
-        Retrieve →
-            Expand Graph →
-                Score →
-                    Generate →
-                        Verify →
-                            Answer
+	Embed →
+		Retrieve →
+			Expand Graph →
+				Score →
+					Generate →
+						Verify →
+							Answer
 ```
 
 ---
 
-# 🏁 Final Concept Name
+# Final Concept Name
 
 Hybrid Graph-Augmented Persistent Semantic Memory System
-
----
-
-If you want next step, I can give you:
-
-* A technical architecture diagram (for pitch)
-* OR a minimal build roadmap (48h hackathon strategy)
-* OR detailed GitHub task breakdown for team members
-
-Tell me which one.
