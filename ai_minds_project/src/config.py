@@ -1,0 +1,37 @@
+"""Configuration for the Memory System"""
+import os
+from pathlib import Path
+
+# Paths
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+OUTPUT_DIR = PROJECT_ROOT / "output"
+RAW_DATA_DIR = DATA_DIR / "raw"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
+
+# Create directories if they don't exist
+for directory in [DATA_DIR, OUTPUT_DIR, RAW_DATA_DIR, PROCESSED_DATA_DIR]:
+    directory.mkdir(parents=True, exist_ok=True)
+
+# Embedding Configuration
+EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"  # HuggingFace model
+EMBEDDING_DIMENSION = 384
+OLLAMA_MODEL = "llama3.2"
+OLLAMA_API_URL = "http://localhost:11434"
+
+# Storage
+METADATA_OUTPUT_FILE = OUTPUT_DIR / "metadata_embeddings.json"
+METADATA_CSV_FILE = OUTPUT_DIR / "metadata_embeddings.csv"
+
+# Processing
+CHUNK_SIZE = 512  # Characters per chunk
+CHUNK_OVERLAP = 50
+MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB
+
+# Supported file types
+SUPPORTED_FORMATS = {
+    'text': ['.txt', '.md'],
+    'pdf': ['.pdf'],
+    'image': ['.jpg', '.jpeg', '.png', '.bmp'],
+    'audio': ['.mp3', '.wav', '.m4a', '.flac']
+}

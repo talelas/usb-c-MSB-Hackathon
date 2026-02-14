@@ -1,0 +1,37 @@
+doc_id,file_name,modality,file_size_bytes,file_timestamp,file_extension,summary,keywords,num_chunks,embedding_dimension,processed_timestamp
+1,cognitive_systems.txt,text,1302,2026-02-14 18:46:25.344573,.txt,"Cognitive computing systems integrate AI & NLP to interact with humans intuitively, providing insights and context-driven solutions across various industries.","Here are 5 important keywords extracted from the text in a comma-separated list:
+
+Artificial Intelligence, Machine Learning, Natural Language Processing, Cognitive Systems, Unstructured Data",3,384,2026-02-14T18:49:15.983593
+2,test_sample.txt,text,474,2026-02-14 18:45:35.105471,.txt,"AI Minds Cognitive Memory System: processes text files (txt, md, pdf) & other formats into embeddings using HuggingFace models.","Here are 5 important keywords extracted from the text, comma-separated:
+
+AI, Cognitive, Memory, System",1,384,2026-02-14T18:49:36.457997
+3,ai_foundations.md,text,1486,2026-02-14 18:46:25.457231,.md,"Artificial Intelligence encompasses machine learning, deep learning & more.","Here are 5 important keywords extracted from the text in comma-separated form:
+
+Artificial Intelligence, Machine Learning, Deep Learning, Natural Language Processing, Computer Vision",4,384,2026-02-14T18:50:01.245435
+4,cognitive_systems.txt,text,1302,2026-02-14 18:46:25.344573,.txt,"Cognitive computing systems use AI & ML to understand context and nuance in human interaction, providing insights for industries like healthcare, finance, retail, and manufacturing.","Here are 5 important keywords extracted from the text in a comma-separated format:
+
+Artificial Intelligence, Machine Learning, Natural Language Processing, Cognitive Systems, Unstructured Data",3,384,2026-02-14T18:58:32.967828
+5,test_sample.txt,text,474,2026-02-14 18:56:26.883240,.txt,"AI Minds Cognitive Memory System: Test document for text processing, supporting various file types.","Here are 5 important keywords extracted from the text in a comma-separated list:
+
+AI, Cognitive, Memory, System, Embeddings",1,384,2026-02-14T18:58:52.668388
+6,ai_foundations.md,text,1486,2026-02-14 18:46:25.457231,.md,"""Artificial Intelligence (AI) is transforming technology with machine learning, deep learning, NLP, and computer vision.""","Here are 5 important keywords extracted from the text in comma-separated format:
+
+Artificial Intelligence, Machine Learning, Deep Learning, Natural Language Processing, Computer Vision",4,384,2026-02-14T18:59:19.504813
+7,cognitive_systems.txt,text,1302,2026-02-14 18:46:25.344573,.txt,"Cognitive computing systems integrate AI, ML, and NLP to interact with humans more intuitively, understanding context and nuance.","Here are 5 important keywords extracted from the text in a comma-separated format:
+
+Artificial intelligence, Machine learning, Natural Language Processing, Cognitive Computing, Intelligence",3,384,2026-02-14T19:22:57.372758
+8,test_sample.txt,text,474,2026-02-14 18:56:26.883240,.txt,"AI Minds Cognitive Memory System: processes text and image files for embedding. Supports various file types, including .txt, .md, .pdf, images, and audio.","Here are 5 important keywords extracted from the text in a comma-separated list:
+
+AI, Memory, System, Embeddings, Models",1,384,2026-02-14T19:23:18.306117
+9,ai_foundations.md,text,1486,2026-02-14 18:46:25.457231,.md,"""Artificial Intelligence (AI) encompasses machine learning, deep learning, natural language processing, and computer vision.""","Here are 5 important keywords extracted from the text in a comma-separated list:
+
+Artificial Intelligence, Machine Learning, Deep Learning, Natural Language Processing, Computer Vision",4,384,2026-02-14T19:23:42.769238
+10,cognitive_systems.txt,text,1302,2026-02-14 18:46:25.344573,.txt,"""Cognitive computing systems integrate AI, ML, and NLP to interact humans intuitively, understanding context & nuance.""","Here are 5 important keywords extracted from the text in a comma-separated list:
+
+Artificial Intelligence, Machine Learning, Natural Language Processing, Cognitive Computing, Complex Problems",3,384,2026-02-14T19:24:50.301029
+11,test_sample.txt,text,474,2026-02-14 18:56:26.883240,.txt,"AI Minds Cognitive Memory System: processes text, images, audio, and PDF files into embeddings using HuggingFace models.","Here are 5 important keywords extracted from the text in a comma-separated list:
+
+AI, Cognitive, Memory, System, Embeddings",1,384,2026-02-14T19:25:09.400803
+12,ai_foundations.md,text,1486,2026-02-14 18:46:25.457231,.md,"Artificial Intelligence (AI) is a transformative tech that encompasses machine learning, deep learning, NLP, and computer vision.","Here are 5 important keywords extracted from the text, comma-separated:
+
+Artificial Intelligence, Machine Learning, Deep Learning, Natural Language Processing",4,384,2026-02-14T19:25:35.643036
