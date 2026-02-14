@@ -139,7 +139,6 @@ Edge Weight =
     temporal_proximity,
     shared_metadata,
     co-occurrence,
-    user reinforcement
   )
 ```
 
