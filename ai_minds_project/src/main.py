@@ -104,8 +104,11 @@ class MemoryProcessor:
             ('.jpg', directory.glob('**/*.jpg')),
             ('.jpeg', directory.glob('**/*.jpeg')),
             ('.png', directory.glob('**/*.png')),
+            ('.bmp', directory.glob('**/*.bmp')),
             ('.mp3', directory.glob('**/*.mp3')),
             ('.wav', directory.glob('**/*.wav')),
+            ('.m4a', directory.glob('**/*.m4a')),
+            ('.flac', directory.glob('**/*.flac')),
         ]:
             supported_files.extend(files)
         

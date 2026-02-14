@@ -1,9 +1,21 @@
 """File Ingestors - Convert various file types to text"""
 import os
+import base64
 from pathlib import Path
 from typing import Tuple, Optional
 from datetime import datetime
 import json
+import requests
+
+from config import (
+    PHOTO_INGESTION_URL,
+    PHOTO_INGESTION_PROMPT,
+    PHOTO_INGESTION_TIMEOUT,
+    AUDIO_TRANSCRIBE_ENABLED,
+    AUDIO_TRANSCRIBE_MODEL,
+    AUDIO_TRANSCRIBE_DEVICE,
+    AUDIO_TRANSCRIBE_COMPUTE_TYPE,
+)
 
 class FileIngestor:
     """Base class for file ingestors"""
@@ -91,7 +103,10 @@ class ImageIngestor(FileIngestor):
         path = Path(file_path)
         
         content = f"[Image: {path.name}] - Image file"
-        
+        caption = self._get_image_caption(path)
+        if caption:
+            content = f"{content}\nCaption: {caption}"
+
         # Try to extract EXIF data
         exif_data = self._extract_exif(path)
         
@@ -101,7 +116,8 @@ class ImageIngestor(FileIngestor):
             'file_size_bytes': path.stat().st_size,
             'timestamp': str(datetime.fromtimestamp(path.stat().st_mtime)),
             'file_extension': path.suffix,
-            'exif_data': exif_data
+            'exif_data': exif_data,
+            'caption': caption
         }
         
         return content, metadata
@@ -127,6 +143,34 @@ class ImageIngestor(FileIngestor):
         except:
             return {}
 
+    def _get_image_caption(self, path: Path) -> str:
+        """Generate image caption using Qwen2-VL server (optional)"""
+        if not PHOTO_INGESTION_URL:
+            return ""
+
+        try:
+            image_bytes = path.read_bytes()
+            ext = path.suffix.lower().lstrip('.')
+            mime = f"image/{'jpeg' if ext in ['jpg', 'jpeg'] else ext}"
+            image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+            payload = {
+                "image_b64": f"data:{mime};base64,{image_b64}",
+                "prompt": PHOTO_INGESTION_PROMPT
+            }
+
+            response = requests.post(
+                PHOTO_INGESTION_URL,
+                json=payload,
+                timeout=PHOTO_INGESTION_TIMEOUT
+            )
+            if response.status_code == 200:
+                data = response.json()
+                return (data.get("description") or "").strip()
+        except Exception:
+            return ""
+
+        return ""
+
 
 class AudioIngestor(FileIngestor):
     """Ingest audio files - extract metadata"""
@@ -140,7 +184,10 @@ class AudioIngestor(FileIngestor):
         path = Path(file_path)
         
         content = f"[Audio: {path.name}] - Audio file"
-        
+        transcript = self._transcribe_audio(path) if AUDIO_TRANSCRIBE_ENABLED else ""
+        if transcript:
+            content = f"{content}\nTranscript: {transcript}"
+
         # Try to extract audio metadata
         audio_metadata = self._extract_audio_metadata(path)
         
@@ -150,7 +197,8 @@ class AudioIngestor(FileIngestor):
             'file_size_bytes': path.stat().st_size,
             'timestamp': str(datetime.fromtimestamp(path.stat().st_mtime)),
             'file_extension': path.suffix,
-            'audio_metadata': audio_metadata
+            'audio_metadata': audio_metadata,
+            'transcript': transcript
         }
         
         return content, metadata
@@ -171,6 +219,31 @@ class AudioIngestor(FileIngestor):
             return metadata
         except:
             return {}
+
+    def _transcribe_audio(self, path: Path) -> str:
+        """Transcribe audio using faster-whisper (optional)"""
+        try:
+            from faster_whisper import WhisperModel
+        except Exception:
+            return ""
+
+        try:
+            model = WhisperModel(
+                AUDIO_TRANSCRIBE_MODEL,
+                device=AUDIO_TRANSCRIBE_DEVICE,
+                compute_type=AUDIO_TRANSCRIBE_COMPUTE_TYPE
+            )
+            segments, _info = model.transcribe(str(path))
+
+            parts = []
+            for segment in segments:
+                text = segment.text.strip()
+                if text:
+                    parts.append(text)
+
+            return " ".join(parts)
+        except Exception:
+            return ""
 
 
 class IngestorFactory:
