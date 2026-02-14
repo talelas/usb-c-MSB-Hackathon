@@ -8,6 +8,103 @@ const nodeRadius = (node) => {
   return base + node.importance * 8;
 };
 
+// ── Deterministic pseudo-random (seeded) ──
+function seededRandom(seed) {
+  let s = seed;
+  return () => {
+    s = (s * 16807 + 0) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+// ── Pre-generate star field ──
+const STAR_COUNT = 300;
+const starSeed = seededRandom(42);
+const STARS = Array.from({ length: STAR_COUNT }, () => ({
+  x: (starSeed() - 0.5) * 4000,
+  y: (starSeed() - 0.5) * 4000,
+  r: starSeed() * 1.2 + 0.3,
+  opacity: starSeed() * 0.6 + 0.15,
+  twinkleSpeed: starSeed() * 0.003 + 0.001,
+  twinklePhase: starSeed() * Math.PI * 2,
+}));
+
+// ── Cluster hull colors per group ──
+const GROUP_HULL_COLORS = {
+  alpha:  { r: 70, g: 110, b: 255, a: 0.08 },
+  beta:   { r: 50, g: 200, b: 220, a: 0.07 },
+  gamma:  { r: 170, g: 80, b: 255, a: 0.07 },
+  shared: { r: 80, g: 220, b: 150, a: 0.06 },
+};
+
+// ── Convex hull (monotone chain) ──
+function convexHull(points) {
+  if (points.length <= 2) return [...points];
+  const sorted = [...points].sort((a, b) => a.x - b.x || a.y - b.y);
+  const cross = (O, A, B) =>
+    (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
+  const lower = [];
+  for (const p of sorted) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0)
+      lower.pop();
+    lower.push(p);
+  }
+  const upper = [];
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], sorted[i]) <= 0)
+      upper.pop();
+    upper.push(sorted[i]);
+  }
+  lower.pop();
+  upper.pop();
+  return lower.concat(upper);
+}
+
+// ── Expand hull outward from centroid ──
+function expandHull(hull, padding) {
+  if (hull.length === 0) return hull;
+  const cx = hull.reduce((s, p) => s + p.x, 0) / hull.length;
+  const cy = hull.reduce((s, p) => s + p.y, 0) / hull.length;
+  return hull.map((p) => {
+    const dx = p.x - cx;
+    const dy = p.y - cy;
+    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    return { x: p.x + (dx / dist) * padding, y: p.y + (dy / dist) * padding };
+  });
+}
+
+// ── Draw smooth closed shape through hull points ──
+function drawSmoothHull(ctx, hull) {
+  if (hull.length < 3) return;
+  ctx.beginPath();
+  // Start at midpoint of first edge
+  const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+  const start = mid(hull[hull.length - 1], hull[0]);
+  ctx.moveTo(start.x, start.y);
+  for (let i = 0; i < hull.length; i++) {
+    const curr = hull[i];
+    const next = hull[(i + 1) % hull.length];
+    const m = mid(curr, next);
+    ctx.quadraticCurveTo(curr.x, curr.y, m.x, m.y);
+  }
+  ctx.closePath();
+}
+
+// ── Particle config ──
+const PARTICLES_PER_LINK = 2;
+const PARTICLE_SPEED = 0.004;
+const PARTICLE_RADIUS = 1.4;
+
+// ── Pre-generate nebula clouds ──
+const NEBULAE = [
+  { x: -200, y: -150, radius: 500, color: [100, 40, 200], opacity: 0.35 },
+  { x: 220, y: 80,   radius: 450, color: [30, 90, 200],  opacity: 0.30 },
+  { x: -60, y: 250,  radius: 400, color: [20, 160, 180],  opacity: 0.25 },
+  { x: 350, y: -220, radius: 360, color: [180, 30, 120],  opacity: 0.22 },
+  { x: -350, y: 60,  radius: 420, color: [50, 60, 200],   opacity: 0.20 },
+  { x: 50,  y: -50,  radius: 550, color: [60, 30, 140],   opacity: 0.18 },
+];
+
 export default function ConstellationGraph({
   graphData,
   neighborMap,
@@ -20,6 +117,9 @@ export default function ConstellationGraph({
   height,
 }) {
   const graphRef = useRef(null);
+  const graphDataRef = useRef(graphData);
+  graphDataRef.current = graphData;
+  const frameRef = useRef(0);
 
   // Refs for paint callbacks — avoids recreating callbacks on every hover
   const hoverRef = useRef(null);
@@ -179,6 +279,23 @@ export default function ConstellationGraph({
     ctx.lineTo(target.x, target.y);
     ctx.stroke();
     ctx.shadowBlur = 0;
+
+    // ── Animated particles ──
+    if (!dimmed) {
+      const t = frameRef.current;
+      const dx = target.x - source.x;
+      const dy = target.y - source.y;
+      for (let i = 0; i < PARTICLES_PER_LINK; i++) {
+        const phase = i / PARTICLES_PER_LINK;
+        const progress = (t * PARTICLE_SPEED + phase) % 1;
+        const px = source.x + dx * progress;
+        const py = source.y + dy * progress;
+        ctx.beginPath();
+        ctx.arc(px, py, PARTICLE_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(140,200,255,${0.6 + progress * 0.3})`;
+        ctx.fill();
+      }
+    }
     ctx.restore();
   }, []);
 
@@ -189,6 +306,82 @@ export default function ConstellationGraph({
     ctx.arc(node.x, node.y, r + 4, 0, 2 * Math.PI);
     ctx.fillStyle = color;
     ctx.fill();
+  }, []);
+
+  // ── Background: Nebula clouds + Star field + Cluster hulls ──
+  const paintBackground = useCallback((ctx, globalScale) => {
+    frameRef.current += 1;
+    const t = frameRef.current;
+
+    // ── Nebula clouds (screen blend for luminous glow) ──
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    for (const neb of NEBULAE) {
+      const grad = ctx.createRadialGradient(
+        neb.x, neb.y, 0,
+        neb.x, neb.y, neb.radius
+      );
+      const [r, g, b] = neb.color;
+      grad.addColorStop(0,   `rgba(${r},${g},${b},${neb.opacity})`);
+      grad.addColorStop(0.2, `rgba(${r},${g},${b},${neb.opacity * 0.7})`);
+      grad.addColorStop(0.5, `rgba(${r},${g},${b},${neb.opacity * 0.3})`);
+      grad.addColorStop(0.8, `rgba(${r},${g},${b},${neb.opacity * 0.08})`);
+      grad.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+      ctx.beginPath();
+      ctx.arc(neb.x, neb.y, neb.radius, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // ── Star field ──
+    for (const star of STARS) {
+      const twinkle = Math.sin(t * star.twinkleSpeed + star.twinklePhase) * 0.3 + 0.7;
+      const alpha = star.opacity * twinkle;
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.r / globalScale, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(220,230,255,${alpha.toFixed(3)})`;
+      ctx.fill();
+    }
+
+    // ── Cluster hulls ──
+    const nodes = graphDataRef.current?.nodes;
+    if (nodes && nodes.length > 0) {
+      // Group nodes by cluster
+      const groups = {};
+      for (const node of nodes) {
+        if (node.x == null || node.y == null || !node.group) continue;
+        if (!groups[node.group]) groups[node.group] = [];
+        groups[node.group].push({ x: node.x, y: node.y });
+      }
+
+      ctx.save();
+      for (const [groupName, pts] of Object.entries(groups)) {
+        if (pts.length < 3) continue;
+        const hullColor = GROUP_HULL_COLORS[groupName];
+        if (!hullColor) continue;
+
+        const hull = convexHull(pts);
+        if (hull.length < 3) continue;
+        const expanded = expandHull(hull, 35);
+
+        // Filled hull
+        drawSmoothHull(ctx, expanded);
+        const { r, g, b, a } = hullColor;
+        ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+        ctx.fill();
+
+        // Hull border glow
+        drawSmoothHull(ctx, expanded);
+        ctx.strokeStyle = `rgba(${r},${g},${b},${a * 2.5})`;
+        ctx.lineWidth = 1;
+        ctx.shadowColor = `rgba(${r},${g},${b},0.4)`;
+        ctx.shadowBlur = 12;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+      ctx.restore();
+    }
   }, []);
 
   return (
@@ -204,6 +397,7 @@ export default function ConstellationGraph({
       nodePointerAreaPaint={paintPointerArea}
       linkCanvasObject={paintLink}
       linkCanvasObjectMode={() => "replace"}
+      onRenderFramePre={paintBackground}
       onNodeHover={(node) => onHoverNode(node?.id ?? null)}
       onNodeClick={(node) => onClickNode(node)}
       onBackgroundClick={() => {
@@ -214,9 +408,10 @@ export default function ConstellationGraph({
         }
       }}
       onZoom={({ k }) => onZoomChange?.(k)}
-      cooldownTime={4000}
+      cooldownTime={Infinity}
       warmupTicks={100}
       d3AlphaDecay={0.02}
+      d3AlphaMin={0}
       d3VelocityDecay={0.3}
       enableNodeDrag={true}
       minZoom={0.3}
