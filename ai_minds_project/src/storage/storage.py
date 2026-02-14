@@ -60,14 +60,19 @@ class MetadataStorage:
         rows = []
         for doc in self.data['documents']:
             file_meta = doc['file_metadata']
+            caption = file_meta.get('caption', '')
+            transcript = file_meta.get('transcript', '')
             
             row = {
                 'doc_id': doc['id'],
                 'file_name': file_meta.get('file_name', ''),
+                'file_path': file_meta.get('file_path', ''),
                 'modality': file_meta.get('modality', ''),
                 'file_size_bytes': file_meta.get('file_size_bytes', ''),
                 'file_timestamp': file_meta.get('timestamp', ''),
                 'file_extension': file_meta.get('file_extension', ''),
+                'image_caption': caption[:200],
+                'audio_transcript': transcript[:200],
                 'summary': doc['text_summary'][:200],  # Truncate for readability
                 'keywords': ', '.join(doc['keywords']),
                 'num_chunks': doc['num_chunks'],

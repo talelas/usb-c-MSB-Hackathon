@@ -5,6 +5,8 @@ import json
 import requests
 from pathlib import Path
 
+from config import STORE_MEDIA_TEXT_IN_METADATA, STORE_CHUNK_TEXT
+
 class HuggingFaceEmbedder:
     """Embed text using HuggingFace sentence-transformers"""
     
@@ -162,6 +164,13 @@ class EmbeddingPipeline:
         # Extract keywords
         keywords = self.enricher.extract_keywords(text)
         
+        # Optionally drop media text fields from metadata after embedding
+        if not STORE_MEDIA_TEXT_IN_METADATA:
+            if isinstance(file_metadata, dict):
+                file_metadata = dict(file_metadata)
+                file_metadata.pop('caption', None)
+                file_metadata.pop('transcript', None)
+
         # Create result
         result = {
             'file_metadata': file_metadata,
@@ -170,7 +179,7 @@ class EmbeddingPipeline:
             'num_chunks': len(chunks),
             'chunks': [
                 {
-                    'text': chunk,
+                    'text': chunk if STORE_CHUNK_TEXT else "",
                     'embedding': embedding.tolist(),
                     'chunk_index': i
                 }

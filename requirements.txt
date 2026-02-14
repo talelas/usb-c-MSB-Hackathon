@@ -17,6 +17,7 @@ ctranslate2>=3.0.0
 # Data & Storage
 pandas==2.0.3
 python-dotenv==1.0.0
+qdrant-client==1.9.0
 
 # Development
 pytest==7.4.0

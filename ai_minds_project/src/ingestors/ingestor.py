@@ -47,6 +47,7 @@ class TextIngestor(FileIngestor):
         metadata = {
             'modality': 'text',
             'file_name': path.name,
+            'file_path': str(path),
             'file_size_bytes': path.stat().st_size,
             'timestamp': str(datetime.fromtimestamp(path.stat().st_mtime)),
             'file_extension': path.suffix
@@ -83,6 +84,7 @@ class PDFIngestor(FileIngestor):
         metadata = {
             'modality': 'pdf',
             'file_name': path.name,
+            'file_path': str(path),
             'file_size_bytes': path.stat().st_size,
             'timestamp': str(datetime.fromtimestamp(path.stat().st_mtime)),
             'file_extension': path.suffix
@@ -113,6 +115,7 @@ class ImageIngestor(FileIngestor):
         metadata = {
             'modality': 'image',
             'file_name': path.name,
+            'file_path': str(path),
             'file_size_bytes': path.stat().st_size,
             'timestamp': str(datetime.fromtimestamp(path.stat().st_mtime)),
             'file_extension': path.suffix,
@@ -146,9 +149,11 @@ class ImageIngestor(FileIngestor):
     def _get_image_caption(self, path: Path) -> str:
         """Generate image caption using Qwen2-VL server (optional)"""
         if not PHOTO_INGESTION_URL:
+            print(f"  ⚠ No PHOTO_INGESTION_URL configured, skipping caption")
             return ""
 
         try:
+            print(f"  → Requesting caption from {PHOTO_INGESTION_URL}...")
             image_bytes = path.read_bytes()
             ext = path.suffix.lower().lstrip('.')
             mime = f"image/{'jpeg' if ext in ['jpg', 'jpeg'] else ext}"
@@ -165,8 +170,13 @@ class ImageIngestor(FileIngestor):
             )
             if response.status_code == 200:
                 data = response.json()
-                return (data.get("description") or "").strip()
-        except Exception:
+                caption = (data.get("description") or "").strip()
+                print(f"  ✓ Got caption ({len(caption)} chars)")
+                return caption
+            else:
+                print(f"  ✗ Caption server error: {response.status_code}")
+        except Exception as e:
+            print(f"  ✗ Caption failed: {e}")
             return ""
 
         return ""
@@ -194,6 +204,7 @@ class AudioIngestor(FileIngestor):
         metadata = {
             'modality': 'audio',
             'file_name': path.name,
+            'file_path': str(path),
             'file_size_bytes': path.stat().st_size,
             'timestamp': str(datetime.fromtimestamp(path.stat().st_mtime)),
             'file_extension': path.suffix,
@@ -224,10 +235,12 @@ class AudioIngestor(FileIngestor):
         """Transcribe audio using faster-whisper (optional)"""
         try:
             from faster_whisper import WhisperModel
-        except Exception:
+        except Exception as e:
+            print(f"  ⚠ faster-whisper not available: {e}")
             return ""
 
         try:
+            print(f"  → Transcribing audio with faster-whisper...")
             model = WhisperModel(
                 AUDIO_TRANSCRIBE_MODEL,
                 device=AUDIO_TRANSCRIBE_DEVICE,
@@ -241,8 +254,11 @@ class AudioIngestor(FileIngestor):
                 if text:
                     parts.append(text)
 
-            return " ".join(parts)
-        except Exception:
+            transcript = " ".join(parts)
+            print(f"  ✓ Got transcript ({len(transcript)} chars)")
+            return transcript
+        except Exception as e:
+            print(f"  ✗ Transcription failed: {e}")
             return ""
 
 

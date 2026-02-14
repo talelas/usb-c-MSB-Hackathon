@@ -30,6 +30,10 @@ AUDIO_TRANSCRIBE_MODEL = "base"
 AUDIO_TRANSCRIBE_DEVICE = "cpu"
 AUDIO_TRANSCRIBE_COMPUTE_TYPE = "int8"
 
+# Storage control (production memory optimization)
+STORE_MEDIA_TEXT_IN_METADATA = True
+STORE_CHUNK_TEXT = True
+
 # Storage
 METADATA_OUTPUT_FILE = OUTPUT_DIR / "metadata_embeddings.json"
 METADATA_CSV_FILE = OUTPUT_DIR / "metadata_embeddings.csv"

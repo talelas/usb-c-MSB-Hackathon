@@ -34,31 +34,22 @@ log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
 
-def decode_base64_image(image_string):
-    """Converts base64 string back to a PIL Image."""
-    if "base64," in image_string:
-        image_string = image_string.split("base64,")[1]
-    image_bytes = base64.b64decode(image_string)
-    return Image.open(io.BytesIO(image_bytes))
-
 @app.route('/analyze', methods=['POST'])
 def analyze():
     try:
         data = request.json
-        image_b64 = data.get('image_b64') # Expects base64 string
+        # Accept both 'image_url' (colab format) and 'image_b64' (client format)
+        image_url = data.get('image_url') or data.get('image_b64')
         prompt = data.get('prompt', "Describe this image.")
         
         print(f"📩 Received Request: {prompt}")
 
-        # Convert base64 to PIL Image
-        image = decode_base64_image(image_b64)
-
-        # Prepare messages
+        # Prepare messages - pass data URI string directly (don't decode)
         messages = [
             {
                 "role": "user",
                 "content": [
-                    {"type": "image", "image": image},
+                    {"type": "image", "image": image_url},
                     {"type": "text", "text": prompt},
                 ],
             }

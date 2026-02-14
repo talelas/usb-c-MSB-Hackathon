@@ -12,8 +12,8 @@ class OutputValidator:
     """Validate and display all pipeline outputs"""
     
     def __init__(self):
-        self.json_path = Path("output/metadata_embeddings.json")
-        self.csv_path = Path("output/metadata_embeddings.csv")
+        self.json_path = Path("ai_minds_project/output/metadata_embeddings.json")
+        self.csv_path = Path("ai_minds_project/output/metadata_embeddings.csv")
         self.data = None
         self.csv_data = None
     

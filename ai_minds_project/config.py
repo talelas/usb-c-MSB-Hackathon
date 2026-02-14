@@ -19,6 +19,21 @@ EMBEDDING_DIMENSION = 384
 OLLAMA_MODEL = "llama3.2"
 OLLAMA_API_URL = "http://localhost:11434"
 
+# Photo ingestion (Qwen2-VL server)
+PHOTO_INGESTION_URL = "http://127.0.0.1:5000/analyze"
+PHOTO_INGESTION_PROMPT = "Describe this image in detail."
+PHOTO_INGESTION_TIMEOUT = 60
+
+# Audio transcription (faster-whisper)
+AUDIO_TRANSCRIBE_ENABLED = True
+AUDIO_TRANSCRIBE_MODEL = "base"
+AUDIO_TRANSCRIBE_DEVICE = "cpu"
+AUDIO_TRANSCRIBE_COMPUTE_TYPE = "int8"
+
+# Storage control (production memory optimization)
+STORE_MEDIA_TEXT_IN_METADATA = True
+STORE_CHUNK_TEXT = True
+
 # Storage
 METADATA_OUTPUT_FILE = OUTPUT_DIR / "metadata_embeddings.json"
 METADATA_CSV_FILE = OUTPUT_DIR / "metadata_embeddings.csv"
