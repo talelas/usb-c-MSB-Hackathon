@@ -1,0 +1,13 @@
+# Ignore the virtual environment folder
+.venv/
+venv/
+env/
+
+# Ignore the old script
+frontend.py
+
+# Ignore other junk
+__pycache__/
+*.pyc
+.DS_Store
+.env
