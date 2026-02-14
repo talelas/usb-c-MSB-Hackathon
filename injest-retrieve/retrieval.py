@@ -16,7 +16,7 @@ EMBED_MODEL = "BAAI/bge-small-en-v1.5"
 # --- 1. Initialize Global Settings ---
 # Using a local cache directory to avoid issues with temp files
 Settings.embed_model = FastEmbedEmbedding(model_name=EMBED_MODEL, cache_dir="./fastembed_cache")
-Settings.llm = Ollama(model=LLM_MODEL, request_timeout=300.0)
+Settings.llm = Ollama(model=LLM_MODEL, request_timeout=300.0, context_window=4096)
 
 def extract_query_intent(query: str) -> Dict[str, Any]:
     """
@@ -26,11 +26,11 @@ def extract_query_intent(query: str) -> Dict[str, Any]:
     """
     prompt = (
         f"Analyze the user query for specific metadata constraints. "
-        f"Available metadata fields are: 'category' (e.g., tech, health, finance), "
-        f"'people' (names), 'topics'. "
-        f"Return ONLY a JSON object with the extracted filters. If no specific filter applies, return empty JSON {{}}.\n\n"
+        f"Available metadata fields are: 'category', 'people' (names), 'topics'. "
+        f"For 'topics', extract key subjects in lowercase (e.g., 'cooking', 'ai'). "
+        f"Return ONLY a JSON object with the extracted filters. "
         f"User Query: '{query}'\n\n"
-        f"JSON:"
+        f"JSON:\n"
     )
     
     response = Settings.llm.complete(prompt)
@@ -138,4 +138,14 @@ if __name__ == "__main__":
 
     for q in test_queries:
         result = hybrid_search_pipeline(q)
-        print(f"  -> LLM Final Answer: {str(result)}\n{'-'*50}")
+        print(f"  -> LLM Final Answer: {str(result)}")
+        
+        # Display Sources
+        if hasattr(result, 'source_nodes') and result.source_nodes:
+            print("\n  -> Sources Used:")
+            for node in result.source_nodes:
+                md = node.metadata
+                print(f"     - File: {md.get('file_name', 'Unknown')}")
+                print(f"       Modified: {md.get('last_modified', 'Unknown')}")
+                # print(f"       Relevance: {node.score:.4f}") # Optional
+        print(f"\n{'-'*50}")
