@@ -22,7 +22,7 @@ OLLAMA_API_URL = "http://localhost:11434"
 # Photo ingestion (Qwen2-VL server)
 PHOTO_INGESTION_URL = "http://127.0.0.1:5000/analyze"
 PHOTO_INGESTION_PROMPT = "Describe this image in detail."
-PHOTO_INGESTION_TIMEOUT = 180  # Increased for CPU inference (takes ~60-120 seconds)
+PHOTO_INGESTION_TIMEOUT = 300  # Increased for CPU inference (can exceed 180 seconds)
 
 # Audio transcription (faster-whisper)
 AUDIO_TRANSCRIBE_ENABLED = True
