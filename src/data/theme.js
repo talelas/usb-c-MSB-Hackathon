@@ -1,0 +1,70 @@
+// ─── SHARED THEME ───────────────────────────────────────────────────
+export const COLORS = {
+  bg: "#05050a",
+  bgPanel: "#08081a",
+  bgPanelAlt: "#0a0a20",
+  bgHover: "#12122a",
+  bgActive: "#1a1a3a",
+  bgInput: "#0d0d22",
+  border: "#1a1a3a",
+  borderSubtle: "#ffffff10",
+  borderFocus: "#4488ff",
+  text: "#ffffffcc",
+  textDim: "#ffffff66",
+  textMuted: "#ffffff44",
+  textFaint: "#ffffff22",
+  accent: "#4488ff",
+  accentCyan: "#00f0ff",
+  accentGreen: "#44ffaa",
+  accentYellow: "#f5e642",
+  accentRed: "#ff4444",
+  accentPurple: "#aa88ff",
+};
+
+export const EXT_COLORS = {
+  folder: "#00f0ff",
+  py: "#f5e642",
+  js: "#f7df1e",
+  ts: "#3178c6",
+  jsx: "#61dafb",
+  pdf: "#ff4444",
+  png: "#ff9900",
+  jpg: "#ff7700",
+  svg: "#66ff66",
+  doc: "#4488ff",
+  docx: "#4488ff",
+  md: "#aaddff",
+  csv: "#44ffaa",
+  json: "#ffaa00",
+  txt: "#cccccc",
+  mp4: "#ff44ff",
+  zip: "#aa88ff",
+  css: "#ff69b4",
+  default: "#8888ff",
+};
+
+export const getExtColor = (ext) => EXT_COLORS[ext] || EXT_COLORS.default;
+
+export const EXT_ICONS = {
+  folder: "📁",
+  py: "🐍",
+  js: "📜",
+  ts: "🔷",
+  jsx: "⚛️",
+  pdf: "📕",
+  png: "🖼️",
+  jpg: "📷",
+  svg: "🎨",
+  doc: "📄",
+  docx: "📄",
+  md: "📝",
+  csv: "📊",
+  json: "📋",
+  txt: "📃",
+  mp4: "🎬",
+  zip: "📦",
+  css: "🎀",
+  default: "📎",
+};
+
+export const getExtIcon = (ext) => EXT_ICONS[ext] || EXT_ICONS.default;
