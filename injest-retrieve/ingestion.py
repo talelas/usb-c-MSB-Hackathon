@@ -1,5 +1,6 @@
 import json
 import os
+import datetime
 from typing import List, Dict, Any
 from llama_index.core import Document, VectorStoreIndex, StorageContext, Settings
 from llama_index.llms.ollama import Ollama
@@ -20,7 +21,7 @@ EMBED_MODEL = "BAAI/bge-small-en-v1.5"
 # Using a local cache directory to avoid issues with temp files
 Settings.embed_model = FastEmbedEmbedding(model_name=EMBED_MODEL, cache_dir="./fastembed_cache")
 # We use Ollama for the LLM
-Settings.llm = Ollama(model=LLM_MODEL, request_timeout=300.0)
+Settings.llm = Ollama(model=LLM_MODEL, request_timeout=300.0, context_window=4096)
 
 def extract_metadata_with_llm(text_chunk: str) -> Dict[str, Any]:
     """
@@ -30,8 +31,9 @@ def extract_metadata_with_llm(text_chunk: str) -> Dict[str, Any]:
     """
     prompt = (
         f"Analyze the following text and extract metadata in strict JSON format. "
-        f"Fields to extract: 'category' (e.g., tech, health, finance), "
-        f"'people' (list of names), 'topics' (list of key topics). "
+        f"Fields to extract: 'category', 'people' (list of names), 'topics' (list of key topics). "
+        f"Use lowercase for 'category' and 'topics'. "
+        f"If no people are mentioned, return an empty list []. "
         f"Do not output anything else other than the JSON object.\n\n"
         f"Text: {text_chunk}\n\n"
         f"JSON:"
@@ -55,60 +57,66 @@ def extract_metadata_with_llm(text_chunk: str) -> Dict[str, Any]:
         print("Warning: JSON decode error.")
         return {}
 
-def ingest_data(documents_content: List[str]):
+def ingest_data(data_folder: str):
     """
     Main Ingestion Flow:
-    1. Extract metadata for raw text.
-    2. Create LlamaIndex Documents.
-    3. Index into Qdrant with Hybrid support (Dense + Sparse/BM25).
+    1. Reads files from data folder.
+    2. Extracts Metadata (Ollama) + File System Metadata.
+    3. Indexes into Qdrant.
     """
-    
-    # --- 2. Initialize Qdrant Client & Vector Store ---
     client = qdrant_client.QdrantClient(url=QDRANT_URL)
-    
-    # Initialize QdrantVectorStore with Hybrid Search enabled.
-    # enable_hybrid=True: Tells LlamaIndex to prepare for hybrid queries.
-    # fastembed_sparse_model: Uses the "Qdrant/bm25" model from FastEmbed to generate 
-    # sparse vectors on the client side, allowing for keyword-based search in Qdrant.
     vector_store = QdrantVectorStore(
-        client=client,
+        client=client, 
         collection_name=COLLECTION_NAME,
-        enable_hybrid=True, 
-        fastembed_sparse_model="Qdrant/bm25" 
+        enable_hybrid=True,
+        fastembed_sparse_model="Qdrant/bm25"
     )
-    
-    # Store the vector store in a StorageContext
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
-
+    
     llama_docs = []
     
     print("--- Starting Ingestion Pipeline ---")
     
-    for text in documents_content:
-        print(f"Processing: {text[:30]}...")
+    # Iterate over files in the data folder
+    for filename in os.listdir(data_folder):
+        file_path = os.path.join(data_folder, filename)
         
+        if not os.path.isfile(file_path) or not filename.endswith(".txt"):
+            continue
+
+        print(f"Processing File: {filename}...")
+        
+        # Read file content
+        with open(file_path, "r", encoding="utf-8") as f:
+            text = f.read()
+
+        # Get File Metadata
+        stats = os.stat(file_path)
+        last_modified = datetime.datetime.fromtimestamp(stats.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+
         # A. Cognitive Step: Extract Metadata
         extracted_metadata = extract_metadata_with_llm(text)
+        
+        # Merge File Metadata
+        extracted_metadata["file_name"] = filename
+        extracted_metadata["last_modified"] = last_modified
+        
         print(f"  -> Extracted Metadata: {extracted_metadata}")
         
-        # B. flatten metadata for easier filtering if needed (e.g. lists to strings? 
-        # LlamaIndex MetadataFilters usually work best with exact matches on strings or numbers).
-        # For this example, we keep structure but robust systems might flatten 'people' list.
-        # We will assume 'category' is a single string for filter simplicity later.
-        
         # C. Create Document
-        # LlamaIndex will generate the embedding for 'text' automatically during indexing.
         doc = Document(
             text=text,
             metadata=extracted_metadata,
-            excluded_llm_metadata_keys=["people", "topics"], # Optional: Exclude from LLM context window to save tokens
-            excluded_embed_metadata_keys=["people"] # Optional: Exclude from embedding generation
+            excluded_llm_metadata_keys=["people", "topics", "file_name", "last_modified"], 
+            excluded_embed_metadata_keys=["people", "file_name", "last_modified"] 
         )
         llama_docs.append(doc)
 
+    if not llama_docs:
+        print("No documents found in data folder!")
+        return
+
     # --- 3. Indexing ---
-    # creating the index triggers the embedding generation (Dense) 
-    # AND the sparse vector generation (BM25) because of our Qdrant settings.
     print("Indexing documents into Qdrant...")
     index = VectorStoreIndex.from_documents(
         llama_docs,
@@ -119,12 +127,11 @@ def ingest_data(documents_content: List[str]):
     return index
 
 if __name__ == "__main__":
-    # Sample Data (Simulated input from a multimodal parser)
-    sample_texts = [
-        "Elon Musk announced new updates for the Starship rocket at SpaceX today. The engineering team is optimistic.",
-        "The recipe for the perfect apple pie involves cinnamon, nutmeg, and granny smith apples. Cooking time is 45 mins.",
-        "Generative AI is transforming the software industry. Jensen Huang discussed NVIDIA's role in this revolution.",
-        "New health guidelines suggest walking 10,000 steps a day for better cardiovascular health."
-    ]
+    # Point to the data directory
+    data_dir = "./data"
     
-    ingest_data(sample_texts)
+    # Ensure data directory exists
+    if not os.path.exists(data_dir):
+        print(f"Error: Data directory '{data_dir}' not found.")
+    else:
+        ingest_data(data_dir)
