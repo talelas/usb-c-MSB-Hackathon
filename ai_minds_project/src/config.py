@@ -37,6 +37,14 @@ GENERATE_MEDIA_TEXT = os.getenv("GENERATE_MEDIA_TEXT", "False").lower() in ("1",
 MEDIA_TEXT_CACHE_FILE = OUTPUT_DIR / "media_text_cache.json"
 
 # Audio transcription (faster-whisper)
+try:
+    import torch
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    compute_type = "float16" if device == "cuda" else "int8"
+except ImportError:
+    device = "cpu"
+    compute_type = "int8"
+
 AUDIO_TRANSCRIBE_ENABLED = os.getenv("AUDIO_TRANSCRIBE_ENABLED", "True").lower() in ("1", "true", "yes")
 AUDIO_TRANSCRIBE_MODEL = os.getenv("AUDIO_TRANSCRIBE_MODEL", "base")
 AUDIO_TRANSCRIBE_DEVICE = os.getenv("AUDIO_TRANSCRIBE_DEVICE", "cpu")

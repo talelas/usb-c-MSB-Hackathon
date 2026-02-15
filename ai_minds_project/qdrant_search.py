@@ -9,7 +9,10 @@ import os
 
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
+
+from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, MatchValue
 import requests
+
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
@@ -35,6 +38,44 @@ def ensure_collection(client: QdrantClient, name: str) -> None:
     )
 
 
+def load_doc_metadata() -> Dict[int, Dict]:
+    """Map doc_id -> file metadata for payload enrichment and display."""
+    meta_path = OUTPUT_DIR / "metadata_embeddings.json"
+    if not meta_path.exists():
+        raise FileNotFoundError(f"Missing metadata file: {meta_path}")
+
+    import json
+
+    with open(meta_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    mapping = {}
+    for doc in data.get("documents", []):
+        doc_id = doc.get("id")
+        file_meta = doc.get("file_metadata", {})
+        modality = file_meta.get("modality")
+        caption = (file_meta.get("caption") or "").strip()
+        transcript = (file_meta.get("transcript") or "").strip()
+        summary = (doc.get("text_summary") or "").strip()
+
+        if modality == "image" and caption:
+            description = caption
+        elif modality == "audio" and transcript:
+            description = transcript
+        else:
+            description = summary
+
+        mapping[doc_id] = {
+            "file_name": file_meta.get("file_name"),
+            "file_path": file_meta.get("file_path"),
+            "modality": modality,
+            "file_extension": file_meta.get("file_extension"),
+            "description": description,
+        }
+
+    return mapping
+
+
 def load_points() -> List[PointStruct]:
     data_path = OUTPUT_DIR / "embeddings_only.json"
     if not data_path.exists():
@@ -45,16 +86,21 @@ def load_points() -> List[PointStruct]:
     with open(data_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
+    doc_meta = load_doc_metadata()
     points = []
     for idx, item in enumerate(data, start=1):
+        doc_id = item.get("doc_id")
+        meta = doc_meta.get(doc_id, {})
         payload = {
-            "doc_id": item.get("doc_id"),
-            "file_name": item.get("file_name"),
+            "doc_id": doc_id,
+            "file_name": meta.get("file_name"),
+            "file_path": meta.get("file_path"),
+            "file_extension": meta.get("file_extension"),
             "chunk_index": item.get("chunk_index"),
-            "chunk_text": item.get("chunk_text"),
             "keywords": item.get("keywords"),
-            "modality": item.get("modality"),
+            "modality": meta.get("modality") or item.get("modality"),
         }
+        # Do not store transcript/chunk_text in Qdrant payload
         points.append(PointStruct(id=idx, vector=item.get("embedding", []), payload=payload))
 
     return points
@@ -138,6 +184,7 @@ def main() -> None:
     parser.add_argument("--upsert", action="store_true", help="Upsert embeddings before searching")
     parser.add_argument("--query", required=True, help="Query text")
     parser.add_argument("--limit", type=int, default=5)
+    parser.add_argument("--keyword", help="Optional keyword filter")
     args = parser.parse_args()
 
     # Determine host/port with precedence: CLI args > env vars > defaults
@@ -169,7 +216,7 @@ def main() -> None:
     if args.upsert:
         upsert_points(client, args.collection)
 
-    query(client, args.collection, args.query, args.limit)
+    query(client, args.collection, args.query, args.limit, args.keyword)
 
 
 if __name__ == "__main__":
