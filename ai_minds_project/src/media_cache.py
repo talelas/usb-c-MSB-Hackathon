@@ -23,20 +23,21 @@ class MediaTextCache:
         return {"items": {}}
 
     def _key(self, path: Path) -> str:
-        return str(path)
+        return str(path.resolve())
 
     def _file_meta(self, path: Path) -> Dict:
-        stat = path.stat()
+        resolved = path.resolve()
+        stat = resolved.stat()
         return {
-            "file_name": path.name,
-            "file_path": str(path),
+            "file_name": resolved.name,
+            "file_path": str(resolved),
             "file_size_bytes": stat.st_size,
             "file_mtime": stat.st_mtime,
         }
 
     def _is_stale(self, entry: Dict, path: Path) -> bool:
         try:
-            stat = path.stat()
+            stat = path.resolve().stat()
             return (
                 entry.get("file_size_bytes") != stat.st_size
                 or entry.get("file_mtime") != stat.st_mtime
