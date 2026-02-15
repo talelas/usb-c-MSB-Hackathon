@@ -120,6 +120,8 @@ export default function ConstellationGraph({
   const graphDataRef = useRef(graphData);
   graphDataRef.current = graphData;
   const frameRef = useRef(0);
+  const nodeBirthRef = useRef({});
+  const groupCentroidsRef = useRef({});
 
   // Refs for paint callbacks — avoids recreating callbacks on every hover
   const hoverRef = useRef(null);
@@ -194,17 +196,43 @@ export default function ConstellationGraph({
     const hovered = hoverRef.current;
     const nSet = neighborSetRef.current;
     const selId = selectedRef.current;
+    const t = frameRef.current;
 
     const dimmed = hovered != null && hovered !== node.id && !nSet.has(node.id);
     const isSelected = selId === node.id;
 
-    ctx.save();
-    ctx.globalAlpha = dimmed ? 0.12 : 1;
+    // ── Semantic zoom: fade out low-importance files when zoomed out ──
+    let zoomAlpha = 1;
+    if (!isFolder && !isSelected) {
+      if (globalScale < 1) {
+        const threshold = 1.1 - globalScale; // 0.4 at scale=0.7, 0.8 at scale=0.3
+        if (node.importance < threshold) {
+          zoomAlpha = Math.max(0, node.importance / threshold);
+        }
+      }
+    }
+    if (zoomAlpha < 0.05) return;
 
-    // Glow halo
-    const glowR = r * (isFolder ? 3.5 : 2.5);
-    const grad = ctx.createRadialGradient(node.x, node.y, r * 0.3, node.x, node.y, glowR);
-    grad.addColorStop(0, color + "66");
+    // ── Entrance animation ──
+    if (!nodeBirthRef.current[node.id]) {
+      nodeBirthRef.current[node.id] = t;
+    }
+    const age = t - nodeBirthRef.current[node.id];
+    const entranceT = Math.min(age / 45, 1); // 45 frames (~0.75s)
+    const easeOut = 1 - Math.pow(1 - entranceT, 3); // cubic ease-out
+    const entranceScale = 0.2 + 0.8 * easeOut;
+    const entranceAlpha = easeOut;
+    const vr = r * entranceScale; // visual radius
+
+    ctx.save();
+    ctx.globalAlpha = (dimmed ? 0.12 : 1) * zoomAlpha * entranceAlpha;
+
+    // ── Pulsing glow (selected: breathing, otherwise: static) ──
+    const pulse = isSelected ? Math.sin(t * 0.06) * 0.35 + 1 : 1;
+    const glowR = vr * (isFolder ? 3.5 : 2.5) * pulse;
+    const grad = ctx.createRadialGradient(node.x, node.y, vr * 0.3, node.x, node.y, glowR);
+    const glowIntensity = isSelected ? "88" : "66";
+    grad.addColorStop(0, color + glowIntensity);
     grad.addColorStop(0.5, color + "22");
     grad.addColorStop(1, color + "00");
     ctx.beginPath();
@@ -214,51 +242,54 @@ export default function ConstellationGraph({
 
     // Core
     ctx.beginPath();
-    ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+    ctx.arc(node.x, node.y, vr, 0, 2 * Math.PI);
     ctx.fillStyle = color;
     ctx.shadowColor = color;
-    ctx.shadowBlur = isFolder ? 20 : 10;
+    ctx.shadowBlur = (isFolder ? 20 : 10) * (isSelected ? pulse : 1);
     ctx.fill();
     ctx.shadowBlur = 0;
 
     // Specular
     const inner = ctx.createRadialGradient(
-      node.x - r * 0.25, node.y - r * 0.25, 0,
-      node.x, node.y, r
+      node.x - vr * 0.25, node.y - vr * 0.25, 0,
+      node.x, node.y, vr
     );
     inner.addColorStop(0, "#ffffff88");
     inner.addColorStop(0.4, "#ffffff22");
     inner.addColorStop(1, "#ffffff00");
     ctx.beginPath();
-    ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+    ctx.arc(node.x, node.y, vr, 0, 2 * Math.PI);
     ctx.fillStyle = inner;
     ctx.fill();
 
-    // Selection ring
+    // Selection ring (rotating dash + pulsing radius)
     if (isSelected) {
+      const ringR = vr + 3 + Math.sin(t * 0.06) * 1.5;
       ctx.beginPath();
-      ctx.arc(node.x, node.y, r + 3, 0, 2 * Math.PI);
-      ctx.strokeStyle = "#ffffff88";
+      ctx.arc(node.x, node.y, ringR, 0, 2 * Math.PI);
+      ctx.strokeStyle = `rgba(255,255,255,${0.4 + Math.sin(t * 0.04) * 0.15})`;
       ctx.lineWidth = 1.5;
       ctx.setLineDash([3, 3]);
+      ctx.lineDashOffset = -t * 0.5;
       ctx.stroke();
       ctx.setLineDash([]);
+      ctx.lineDashOffset = 0;
     }
 
     // Label
     if (!dimmed || isFolder || isSelected) {
-      const fontSize = Math.max(10 / globalScale, r * 0.7);
+      const fontSize = Math.max(10 / globalScale, vr * 0.7);
       ctx.font = `${fontSize}px 'Inter', 'SF Pro', sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
       ctx.fillStyle = dimmed ? "#ffffff44" : "#ffffffcc";
-      ctx.fillText(node.name, node.x, node.y + r + 3);
+      ctx.fillText(node.name, node.x, node.y + vr + 3);
     }
 
     ctx.restore();
   }, []);
 
-  // ── Link painter ──
+  // ── Link painter (edge-bundled Bezier curves) ──
   const paintLink = useCallback((link, ctx) => {
     const source = typeof link.source === "object" ? link.source : null;
     const target = typeof link.target === "object" ? link.target : null;
@@ -268,6 +299,25 @@ export default function ConstellationGraph({
     const nSet = neighborSetRef.current;
     const dimmed = hovered != null && !nSet.has(source.id) && !nSet.has(target.id);
 
+    // ── Compute Bezier control point (edge bundling) ──
+    const centroids = groupCentroidsRef.current;
+    const mx = (source.x + target.x) / 2;
+    const my = (source.y + target.y) / 2;
+    let cpx, cpy;
+    if (source.group && source.group === target.group && centroids[source.group]) {
+      // Same group: curve toward group centroid
+      const c = centroids[source.group];
+      cpx = mx + (c.x - mx) * 0.4;
+      cpy = my + (c.y - my) * 0.4;
+    } else {
+      // Cross-group: offset perpendicular to make it visually distinct
+      const dx = target.x - source.x;
+      const dy = target.y - source.y;
+      const len = Math.sqrt(dx * dx + dy * dy) || 1;
+      cpx = mx + (-dy / len) * 25;
+      cpy = my + (dx / len) * 25;
+    }
+
     ctx.save();
     ctx.globalAlpha = dimmed ? 0.04 : 0.3;
     ctx.strokeStyle = "#4488ff";
@@ -276,23 +326,23 @@ export default function ConstellationGraph({
     ctx.shadowBlur = dimmed ? 0 : 6;
     ctx.beginPath();
     ctx.moveTo(source.x, source.y);
-    ctx.lineTo(target.x, target.y);
+    ctx.quadraticCurveTo(cpx, cpy, target.x, target.y);
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // ── Animated particles ──
+    // ── Animated particles (follow Bezier curve) ──
     if (!dimmed) {
       const t = frameRef.current;
-      const dx = target.x - source.x;
-      const dy = target.y - source.y;
       for (let i = 0; i < PARTICLES_PER_LINK; i++) {
         const phase = i / PARTICLES_PER_LINK;
-        const progress = (t * PARTICLE_SPEED + phase) % 1;
-        const px = source.x + dx * progress;
-        const py = source.y + dy * progress;
+        const p = (t * PARTICLE_SPEED + phase) % 1;
+        // Quadratic Bezier: B(t) = (1-t)²·P0 + 2(1-t)t·P1 + t²·P2
+        const omp = 1 - p;
+        const px = omp * omp * source.x + 2 * omp * p * cpx + p * p * target.x;
+        const py = omp * omp * source.y + 2 * omp * p * cpy + p * p * target.y;
         ctx.beginPath();
         ctx.arc(px, py, PARTICLE_RADIUS, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(140,200,255,${0.6 + progress * 0.3})`;
+        ctx.fillStyle = `rgba(140,200,255,${(0.5 + p * 0.4).toFixed(2)})`;
         ctx.fill();
       }
     }
@@ -344,7 +394,7 @@ export default function ConstellationGraph({
       ctx.fill();
     }
 
-    // ── Cluster hulls ──
+    // ── Cluster hulls + compute group centroids for edge bundling ──
     const nodes = graphDataRef.current?.nodes;
     if (nodes && nodes.length > 0) {
       // Group nodes by cluster
@@ -354,6 +404,16 @@ export default function ConstellationGraph({
         if (!groups[node.group]) groups[node.group] = [];
         groups[node.group].push({ x: node.x, y: node.y });
       }
+
+      // Store centroids for edge bundling (used by paintLink)
+      const centroids = {};
+      for (const [gn, pts] of Object.entries(groups)) {
+        centroids[gn] = {
+          x: pts.reduce((s, p) => s + p.x, 0) / pts.length,
+          y: pts.reduce((s, p) => s + p.y, 0) / pts.length,
+        };
+      }
+      groupCentroidsRef.current = centroids;
 
       ctx.save();
       for (const [groupName, pts] of Object.entries(groups)) {

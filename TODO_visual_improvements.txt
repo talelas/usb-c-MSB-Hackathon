@@ -7,20 +7,20 @@ TIER 1 — Easy wins
 ───────────────────
 [x] Nebula clouds + star field background
 [x] Animated particle links — tiny dots flowing along edges (source → target), "data flowing" feel
-[ ] Pulsing glow on selected node — animate glow radius with requestAnimationFrame, breathing effect
-[ ] Node entrance animation — fade in nodes with scale-up on first load
+[x] Pulsing glow on selected node — animate glow radius with requestAnimationFrame, breathing effect
+[x] Node entrance animation — fade in nodes with scale-up on first load
 
 TIER 2 — Medium effort, big impact
 ────────────────────────────────────
 [x] Cluster hulls — soft translucent convex hulls around each project group (alpha, beta, gamma)
-[ ] Edge bundling — Bezier curves routed through midpoints to reduce visual clutter
+[x] Edge bundling — Bezier curves routed through midpoints to reduce visual clutter
 [ ] Minimap — small fixed-position canvas in corner showing full graph + viewport rectangle
 
 TIER 3 — Advanced polish
 ─────────────────────────
 [ ] Orbital rings — faint dashed circles at radial force distances (60px, 120px, 400px)
 [ ] Force-directed labels — secondary force simulation for label placement to prevent text overlaps
-[ ] Zoom-dependent detail (semantic zoom) — at low zoom show only folders + high-importance nodes, fade in smaller nodes as you zoom
+[x] Zoom-dependent detail (semantic zoom) — at low zoom show only folders + high-importance nodes, fade in smaller nodes as you zoom
 [ ] Connection strength encoding — vary link opacity/width based on shared connection count
 [ ] Time-based activity glow — "last modified" field, recently active files pulse brighter, stale files dim
 
