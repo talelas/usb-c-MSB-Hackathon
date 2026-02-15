@@ -31,10 +31,11 @@ const STARS = Array.from({ length: STAR_COUNT }, () => ({
 
 // ── Cluster hull colors per group ──
 const GROUP_HULL_COLORS = {
-  alpha:  { r: 70, g: 110, b: 255, a: 0.08 },
-  beta:   { r: 50, g: 200, b: 220, a: 0.07 },
-  gamma:  { r: 170, g: 80, b: 255, a: 0.07 },
-  shared: { r: 80, g: 220, b: 150, a: 0.06 },
+  pulmonary:   { r: 60, g: 140, b: 255, a: 0.08 },
+  infectious:  { r: 255, g: 80, b: 80, a: 0.07 },
+  cardiac:     { r: 255, g: 50, b: 120, a: 0.07 },
+  surgical:    { r: 80, g: 220, b: 150, a: 0.07 },
+  diagnostic:  { r: 170, g: 120, b: 255, a: 0.06 },
 };
 
 // ── Convex hull (monotone chain) ──
@@ -276,13 +277,17 @@ export default function ConstellationGraph({
       ctx.lineDashOffset = 0;
     }
 
-    // Label
-    if (!dimmed || isFolder || isSelected) {
+    // Label — fade out when zoomed out for nebula feel
+    const labelAlpha = globalScale < 0.6 ? 0
+                     : globalScale < 1.2 ? (globalScale - 0.6) / 0.6
+                     : 1;
+    if (labelAlpha > 0.01 && (!dimmed || isFolder || isSelected)) {
       const fontSize = Math.max(10 / globalScale, vr * 0.7);
       ctx.font = `${fontSize}px 'Inter', 'SF Pro', sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
-      ctx.fillStyle = dimmed ? "#ffffff44" : "#ffffffcc";
+      const baseAlpha = dimmed ? 0.27 : 0.8;
+      ctx.fillStyle = `rgba(255,255,255,${(baseAlpha * labelAlpha).toFixed(2)})`;
       ctx.fillText(node.name, node.x, node.y + vr + 3);
     }
 
