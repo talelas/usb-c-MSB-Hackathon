@@ -3,6 +3,8 @@ import { COLORS } from "../data/theme";
 import { sendChatMessage, getConversationHistory, clearConversation } from "../data/api";
 
 export default function ChatPanel({ sessionId = "default", onClose, width = 400 }) {
+  console.log('[ChatPanel] Component mounted with sessionId:', sessionId);
+  
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,12 +16,17 @@ export default function ChatPanel({ sessionId = "default", onClose, width = 400 
   useEffect(() => {
     const loadHistory = async () => {
       try {
+        console.log('[ChatPanel] Loading conversation history for session:', sessionId);
         const response = await getConversationHistory(sessionId);
+        console.log('[ChatPanel] History response:', response);
         if (response.messages && response.messages.length > 0) {
           setMessages(response.messages);
+          console.log('[ChatPanel] Loaded', response.messages.length, 'messages from history');
+        } else {
+          console.log('[ChatPanel] No previous messages found');
         }
       } catch (err) {
-        console.error("Failed to load conversation history:", err);
+        console.error("[ChatPanel] Failed to load conversation history:", err);
       }
     };
     loadHistory();
@@ -34,6 +41,9 @@ export default function ChatPanel({ sessionId = "default", onClose, width = 400 
     const query = input.trim();
     if (!query || loading) return;
 
+    console.log('[ChatPanel] Sending message:', query);
+    console.log('[ChatPanel] Session ID:', sessionId);
+
     // Add user message
     const userMessage = { role: "user", content: query };
     setMessages((prev) => [...prev, userMessage]);
@@ -42,10 +52,13 @@ export default function ChatPanel({ sessionId = "default", onClose, width = 400 
     setError(null);
 
     try {
+      console.log('[ChatPanel] Calling sendChatMessage API...');
       const response = await sendChatMessage(query, sessionId, {
         topK: 10,
         temperature: 0.5,
       });
+
+      console.log('[ChatPanel] Received response:', response);
 
       // Add assistant response
       const assistantMessage = {
@@ -54,7 +67,9 @@ export default function ChatPanel({ sessionId = "default", onClose, width = 400 
         sources: response.sources || [],
       };
       setMessages((prev) => [...prev, assistantMessage]);
+      console.log('[ChatPanel] Assistant message added to UI');
     } catch (err) {
+      console.error('[ChatPanel] Error occurred:', err);
       setError(err.message || "Failed to get response");
       // Remove user message on error
       setMessages((prev) => prev.slice(0, -1));
