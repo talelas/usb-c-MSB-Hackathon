@@ -5,10 +5,16 @@ Scan directory → ingest each file → chunk → embed → enrich → persist
 
 The workflow is designed to be **idempotent**: re-running it on the
 same directory skips files already stored in Postgres (by file_path).
+
+Supports:
+- Local directory paths
+- Google Drive shareable links
+- OneDrive shareable links
 """
 from __future__ import annotations
 
 import logging
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import List
@@ -26,6 +32,164 @@ from app.db import redis_client as rdb
 from app.graph.builder import build_all as build_graphs
 
 log = logging.getLogger(__name__)
+
+
+# ── Drive Link Detection & Download ──────────────────────────
+
+def _is_drive_link(input_str: str) -> bool:
+    """Check if input is a Google Drive or OneDrive shareable link."""
+    if not isinstance(input_str, str):
+        return False
+    return (
+        'drive.google.com' in input_str or
+        '1drv.ms' in input_str or
+        'onedrive.live.com' in input_str or
+        'sharepoint.com' in input_str
+    )
+
+
+def _download_from_drive_link(link: str) -> Path | None:
+    """Download files from Google Drive or OneDrive link to temp directory.
+    
+    Returns the directory where files were downloaded.
+    """
+    try:
+        # Add file_handling to path if not already there
+        project_root = Path(__file__).parent.parent.parent.parent
+        file_handling_path = project_root / "file_handling"
+        if str(file_handling_path) not in sys.path:
+            sys.path.insert(0, str(file_handling_path))
+        
+        from shareable_link_parser import ShareableLinkParser
+        
+        log.info("Parsing drive link: %s", link)
+        
+        # Try Google Drive
+        if 'drive.google.com' in link:
+            parsed = ShareableLinkParser.parse_google_drive_url(link)
+            if not parsed:
+                log.error("Failed to parse Google Drive URL")
+                return None
+            
+            log.info("Detected Google Drive %s: %s", parsed['type'], parsed['id'])
+            
+            from public_gdrive_access import PublicGoogleDriveAccess
+            gdrive = PublicGoogleDriveAccess()
+            
+            if not gdrive.service:
+                raise ValueError("Google Drive service not initialized. Set GOOGLE_API_KEY environment variable.")
+            
+            if parsed['type'] == 'folder':
+                # List and download all files in folder
+                log.info("Downloading files from Google Drive folder...")
+                files = gdrive.list_folder_contents(parsed['id'])
+                
+                if files is None:
+                    raise ValueError("Failed to access Google Drive folder. Check if it's publicly shared.")
+                
+                if not files:
+                    log.warning("No files found in Google Drive folder")
+                    return None
+                
+                download_dir = gdrive.temp_dir
+                downloaded_count = 0
+                
+                for file_meta in files:
+                    # Skip Google Drive folders (we only download files)
+                    if file_meta.get('mimeType', '').endswith('.folder'):
+                        continue
+                    
+                    file_id = file_meta['id']
+                    file_name = file_meta['name']
+                    mime_type = file_meta.get('mimeType', '')
+                    
+                    result = gdrive.download_file(file_id, file_name, mime_type)
+                    if result:
+                        downloaded_count += 1
+                        log.info("Downloaded: %s", file_name)
+                
+                log.info("Downloaded %d files from Google Drive to %s", downloaded_count, download_dir)
+                return download_dir
+            else:
+                # Single file
+                log.info("Downloading single file from Google Drive...")
+                file_meta = gdrive.service.files().get(
+                    fileId=parsed['id'],
+                    fields='id,name,mimeType'
+                ).execute()
+                
+                result = gdrive.download_file(
+                    parsed['id'],
+                    file_meta['name'],
+                    file_meta['mimeType']
+                )
+                if result:
+                    return result.parent
+                return None
+        
+        # Try OneDrive
+        elif any(x in link for x in ['1drv.ms', 'onedrive.live.com', 'sharepoint.com']):
+            parsed = ShareableLinkParser.parse_onedrive_url(link)
+            if not parsed:
+                log.error("Failed to parse OneDrive URL")
+                return None
+            
+            log.info("Detected OneDrive %s", parsed['type'])
+            
+            from public_onedrive_access import PublicOneDriveAccess
+            onedrive = PublicOneDriveAccess()
+            
+            if parsed['type'] == 'folder':
+                # List and download all files in folder
+                log.info("Downloading files from OneDrive folder...")
+                files = onedrive.list_folder_contents(link)
+                
+                if not files:
+                    log.warning("No files found in OneDrive folder")
+                    return None
+                
+                download_dir = onedrive.temp_dir
+                downloaded_count = 0
+                
+                for file_meta in files:
+                    # Skip folders
+                    if 'folder' in file_meta:
+                        continue
+                    
+                    download_url = file_meta.get('@microsoft.graph.downloadUrl')
+                    if not download_url:
+                        continue
+                    
+                    file_name = file_meta['name']
+                    result = onedrive.download_file(download_url, file_name)
+                    if result:
+                        downloaded_count += 1
+                        log.info("Downloaded: %s", file_name)
+                
+                log.info("Downloaded %d files from OneDrive to %s", downloaded_count, download_dir)
+                return download_dir
+            else:
+                # Single file
+                log.info("Downloading single file from OneDrive...")
+                item = onedrive.get_shared_item(link)
+                if item and '@microsoft.graph.downloadUrl' in item:
+                    result = onedrive.download_file(
+                        item['@microsoft.graph.downloadUrl'],
+                        item['name']
+                    )
+                    if result:
+                        return result.parent
+                return None
+        
+        return None
+    
+    except ImportError as e:
+        log.error("Drive link functionality requires file_handling module: %s", e)
+        log.error("Make sure the file_handling module is available and dependencies are installed.")
+        return None
+    except Exception as e:
+        log.exception("Failed to download from drive link: %s", e)
+        return None
 
 
 # ── Single-file pipeline ─────────────────────────────────────
@@ -135,10 +299,35 @@ def ingest_directory(
     directory: Path | str | None = None,
     rebuild_graphs: bool = True,
 ) -> dict:
-    """Ingest all supported files from *directory* (default: data/raw).
+    """Ingest all supported files from *directory* or drive link (default: data/raw).
+
+    Supports:
+    - Local directory paths: /path/to/documents
+    - Google Drive links: https://drive.google.com/drive/folders/...
+    - OneDrive links: https://1drv.ms/f/s!...
 
     Returns a summary dict: ``{ingested, skipped, failed, graph_built}``.
     """
+    # Check if input is a drive link
+    if directory and isinstance(directory, str) and _is_drive_link(directory):
+        log.info("Detected drive link: %s", directory)
+        rdb.log_event("drive_link_detected", {"link": directory})
+        
+        try:
+            download_dir = _download_from_drive_link(directory)
+            if not download_dir:
+                error_msg = "Failed to download files from drive link"
+                log.error(error_msg)
+                return {"error": error_msg, "drive_link": directory}
+            
+            log.info("Files downloaded to: %s", download_dir)
+            directory = download_dir
+        except Exception as e:
+            error_msg = f"Drive link processing failed: {str(e)}"
+            log.exception(error_msg)
+            return {"error": error_msg, "drive_link": str(directory)}
+    
+    # Convert to Path object
     directory = Path(directory) if directory else RAW_DATA_DIR
     if not directory.exists():
         log.error("Directory does not exist: %s", directory)

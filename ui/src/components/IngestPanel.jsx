@@ -61,21 +61,23 @@ export default function IngestPanel({ onClose, onIngestComplete, width = 400 }) 
         {/* Directory Input */}
         <div style={styles.section}>
           <label style={styles.label}>
-            Directory Path
+            Directory Path or Drive Link
             <span style={styles.labelHint}>(leave empty for default: data/raw)</span>
           </label>
           <input
             type="text"
             value={directory}
             onChange={(e) => setDirectory(e.target.value)}
-            placeholder="/path/to/documents or leave empty"
+            placeholder="/path/to/documents or https://drive.google.com/..."
             style={styles.input}
             disabled={loading}
           />
           <div style={styles.hint}>
-            Enter an absolute path or leave empty to use the default directory.
+            <strong>Local Path:</strong> <code style={styles.code}>C:/Users/User/Documents</code>
             <br />
-            Example: <code style={styles.code}>C:/Users/User/Documents</code>
+            <strong>Google Drive:</strong> <code style={styles.code}>https://drive.google.com/drive/folders/...</code>
+            <br />
+            <strong>OneDrive:</strong> <code style={styles.code}>https://1drv.ms/f/s!...</code>
           </div>
         </div>
 
@@ -141,12 +143,25 @@ export default function IngestPanel({ onClose, onIngestComplete, width = 400 }) 
         <div style={styles.info}>
           <div style={styles.infoTitle}>ℹ️ How it works</div>
           <ul style={styles.infoList}>
-            <li>Scans directory for documents (PDF, TXT, MD, etc.)</li>
+            <li>Accepts local directories or cloud drive links</li>
+            <li>Downloads files from Google Drive/OneDrive if link provided</li>
+            <li>Scans for documents (PDF, TXT, MD, images, audio)</li>
             <li>Extracts text and generates embeddings</li>
             <li>Creates summaries and extracts keywords</li>
-            <li>Stores in vector database for search</li>
+            <li>Stores in vector database for semantic search</li>
             <li>Builds knowledge graph for exploration</li>
           </ul>
+          <div style={styles.supportedLinks}>
+            <div style={styles.supportedTitle}>☁️ Supported cloud links:</div>
+            <div style={styles.supportedItem}>
+              <span style={styles.supportedIcon}>🟢</span>
+              Google Drive (publicly shared folders/files)
+            </div>
+            <div style={styles.supportedItem}>
+              <span style={styles.supportedIcon}>🔵</span>
+              OneDrive (publicly shared folders/files)
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -337,5 +352,27 @@ const styles = {
     fontSize: 11,
     color: COLORS.textMuted,
     lineHeight: 1.6,
+  },
+  supportedLinks: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTop: `1px solid ${COLORS.borderSubtle}`,
+  },
+  supportedTitle: {
+    fontSize: 10,
+    fontWeight: 600,
+    color: COLORS.textDim,
+    marginBottom: 6,
+  },
+  supportedItem: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    fontSize: 10,
+    color: COLORS.textMuted,
+    marginBottom: 4,
+  },
+  supportedIcon: {
+    fontSize: 8,
   },
 };

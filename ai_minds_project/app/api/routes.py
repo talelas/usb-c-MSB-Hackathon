@@ -50,8 +50,13 @@ def load_graphs() -> None:
         log.warning("Graph files not found — building from scratch")
         try:
             _kw_graph, _sem_graph = build_all()
+            log.info("Graphs built successfully")
         except Exception:
-            log.exception("Failed to build graphs at startup")
+            log.warning("Failed to build graphs at startup - will use empty graphs")
+            _kw_graph, _sem_graph = nx.Graph(), nx.Graph()
+    except Exception:
+        log.exception("Unexpected error loading graphs - using empty graphs")
+        _kw_graph, _sem_graph = nx.Graph(), nx.Graph()
 
 
 # ── Health ───────────────────────────────────────────────────

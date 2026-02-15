@@ -107,14 +107,19 @@ def search(
 
 def scroll_all(collection: str = QDRANT_COLLECTION, with_vectors: bool = False):
     """Return all points (up to 10 000)."""
+    ensure_collection(collection)  # Make sure collection exists
     client = get_client()
-    points, _ = client.scroll(
-        collection_name=collection,
-        limit=10_000,
-        with_payload=True,
-        with_vectors=with_vectors,
-    )
-    return points
+    try:
+        points, _ = client.scroll(
+            collection_name=collection,
+            limit=10_000,
+            with_payload=True,
+            with_vectors=with_vectors,
+        )
+        return points
+    except Exception:
+        # Return empty list if scroll fails
+        return []
 
 
 def get_doc_embeddings(collection: str = QDRANT_COLLECTION) -> Dict[int, List[float]]:

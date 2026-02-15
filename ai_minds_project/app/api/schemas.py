@@ -35,7 +35,7 @@ class ChatResponse(BaseModel):
 class IngestRequest(BaseModel):
     directory: Optional[str] = Field(
         default=None,
-        description="Path to directory to ingest. Defaults to data/raw.",
+        description="Path to local directory OR Google Drive/OneDrive shareable link. Defaults to data/raw.",
     )
     rebuild_graphs: bool = Field(default=True, description="Rebuild graphs after ingestion")
 
