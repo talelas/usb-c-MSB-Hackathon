@@ -11,11 +11,14 @@ from config import (
     PHOTO_INGESTION_URL,
     PHOTO_INGESTION_PROMPT,
     PHOTO_INGESTION_TIMEOUT,
+    USE_MEDIA_TEXT_CACHE,
+    GENERATE_MEDIA_TEXT,
     AUDIO_TRANSCRIBE_ENABLED,
     AUDIO_TRANSCRIBE_MODEL,
     AUDIO_TRANSCRIBE_DEVICE,
     AUDIO_TRANSCRIBE_COMPUTE_TYPE,
 )
+from media_cache import MediaTextCache
 
 class FileIngestor:
     """Base class for file ingestors"""
@@ -148,6 +151,17 @@ class ImageIngestor(FileIngestor):
 
     def _get_image_caption(self, path: Path) -> str:
         """Generate image caption using Qwen2-VL server (optional)"""
+        if USE_MEDIA_TEXT_CACHE:
+            cache = MediaTextCache()
+            cached = cache.get_caption(path)
+            if cached:
+                print("  ✓ Using cached caption")
+                return cached
+
+        if not GENERATE_MEDIA_TEXT:
+            print("  ⚠ Media text generation disabled, skipping caption")
+            return ""
+
         if not PHOTO_INGESTION_URL:
             print(f"  ⚠ No PHOTO_INGESTION_URL configured, skipping caption")
             return ""
@@ -172,6 +186,8 @@ class ImageIngestor(FileIngestor):
                 data = response.json()
                 caption = (data.get("description") or "").strip()
                 print(f"  ✓ Got caption ({len(caption)} chars)")
+                if USE_MEDIA_TEXT_CACHE and caption:
+                    MediaTextCache().set_caption(path, caption)
                 return caption
             else:
                 print(f"  ✗ Caption server error: {response.status_code}")
@@ -233,6 +249,17 @@ class AudioIngestor(FileIngestor):
 
     def _transcribe_audio(self, path: Path) -> str:
         """Transcribe audio using faster-whisper (optional)"""
+        if USE_MEDIA_TEXT_CACHE:
+            cache = MediaTextCache()
+            cached = cache.get_transcript(path)
+            if cached:
+                print("  ✓ Using cached transcript")
+                return cached
+
+        if not GENERATE_MEDIA_TEXT:
+            print("  ⚠ Media text generation disabled, skipping transcription")
+            return ""
+
         try:
             from faster_whisper import WhisperModel
         except Exception as e:
@@ -256,6 +283,8 @@ class AudioIngestor(FileIngestor):
 
             transcript = " ".join(parts)
             print(f"  ✓ Got transcript ({len(transcript)} chars)")
+            if USE_MEDIA_TEXT_CACHE and transcript:
+                MediaTextCache().set_transcript(path, transcript)
             return transcript
         except Exception as e:
             print(f"  ✗ Transcription failed: {e}")

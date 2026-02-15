@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from config import DATA_DIR, OUTPUT_DIR, METADATA_OUTPUT_FILE, METADATA_CSV_FILE
 from config import EMBEDDING_MODEL, OLLAMA_API_URL, OLLAMA_MODEL
-from config import PHOTO_INGESTION_URL, AUDIO_TRANSCRIBE_ENABLED
+from config import PHOTO_INGESTION_URL, AUDIO_TRANSCRIBE_ENABLED, USE_MEDIA_TEXT_CACHE, GENERATE_MEDIA_TEXT
 from ingestors.ingestor import IngestorFactory
 from embedders.embedder import EmbeddingPipeline
 from storage.storage import MetadataStorage, MemoryIndex
@@ -42,6 +42,8 @@ class MemoryProcessor:
         else:
             print("⚠ Image captions disabled (PHOTO_INGESTION_URL not set)")
         print(f"✓ Audio transcription enabled: {AUDIO_TRANSCRIBE_ENABLED}")
+        print(f"✓ Media text cache enabled: {USE_MEDIA_TEXT_CACHE}")
+        print(f"✓ Media text generation enabled: {GENERATE_MEDIA_TEXT}")
         print("✓ MemoryProcessor initialized\n")
     
     def process_file(self, file_path: str) -> bool:
