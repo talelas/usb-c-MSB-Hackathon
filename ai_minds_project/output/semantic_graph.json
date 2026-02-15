@@ -553,6 +553,48 @@
         "fur"
       ],
       "summary": "Image of an orange tabby cat with pink nose, white stripes, and pointed ears against a blurred green background."
+    },
+    {
+      "id": 47,
+      "file_name": "cattt.jpg",
+      "file_path": "C:\\Users\\User\\Downloads\\Nouveau doss\\cattt.jpg",
+      "modality": "image",
+      "keywords": [
+        "Bengal",
+        "cat",
+        "striped",
+        "brown",
+        "pointed"
+      ],
+      "summary": "Bengal cat with striking brown and black striped fur, large pointed ears, golden-brown eyes, and well-groomed texture."
+    },
+    {
+      "id": 48,
+      "file_name": "cattt.jpg",
+      "file_path": "C:\\Users\\User\\Downloads\\Nouveau dffff\\cattt.jpg",
+      "modality": "image",
+      "keywords": [
+        "Bengal cat",
+        "striped pattern",
+        "short fur",
+        "pointed ears",
+        "golden"
+      ],
+      "summary": "Close-up of a Bengal cat with striking brown and black striped fur, large pointed ears, golden-brown eyes, and white whiskers."
+    },
+    {
+      "id": 49,
+      "file_name": "cattt519159.jpg",
+      "file_path": "C:\\Users\\User\\Downloads\\Nouveau dffff\\cattt519159.jpg",
+      "modality": "image",
+      "keywords": [
+        "Bengal cat",
+        "distinctive",
+        "fur pattern",
+        "pointed ears",
+        "whiskers"
+      ],
+      "summary": "Image of Bengal cat with striking brown & black striped fur, large ears, expressive eyes, and long white whiskers."
     }
   ],
   "edges": [
@@ -641,6 +683,24 @@
       "edge_type": "semantic"
     },
     {
+      "source": 32,
+      "target": 49,
+      "weight": 0.5920880217982685,
+      "edge_type": "semantic"
+    },
+    {
+      "source": 32,
+      "target": 47,
+      "weight": 0.5832034546703312,
+      "edge_type": "semantic"
+    },
+    {
+      "source": 32,
+      "target": 48,
+      "weight": 0.5832034546703312,
+      "edge_type": "semantic"
+    },
+    {
       "source": 33,
       "target": 36,
       "weight": 0.604628537911877,
@@ -656,6 +716,42 @@
       "source": 34,
       "target": 36,
       "weight": 0.5707592763334269,
+      "edge_type": "semantic"
+    },
+    {
+      "source": 46,
+      "target": 47,
+      "weight": 0.6390787040390621,
+      "edge_type": "semantic"
+    },
+    {
+      "source": 46,
+      "target": 48,
+      "weight": 0.6390787040390621,
+      "edge_type": "semantic"
+    },
+    {
+      "source": 46,
+      "target": 49,
+      "weight": 0.6378153858004169,
+      "edge_type": "semantic"
+    },
+    {
+      "source": 47,
+      "target": 48,
+      "weight": 0.9999999999999999,
+      "edge_type": "semantic"
+    },
+    {
+      "source": 47,
+      "target": 49,
+      "weight": 0.9920234936891923,
+      "edge_type": "semantic"
+    },
+    {
+      "source": 48,
+      "target": 49,
+      "weight": 0.9920234936891923,
       "edge_type": "semantic"
     }
   ]

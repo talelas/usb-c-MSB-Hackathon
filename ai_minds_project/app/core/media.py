@@ -105,8 +105,15 @@ def get_caption(path: Path) -> str:
         
         return output_text.strip()
         
+    except torch.cuda.OutOfMemoryError as exc:
+        log.warning(f"⚠️ CUDA OOM during caption for {path.name} - clearing cache and continuing without caption")
+        try:
+            torch.cuda.empty_cache()
+        except:
+            pass
+        return ""
     except Exception as exc:
-        log.warning(f"Caption failed for {path.name}: {exc}")
+        log.warning(f"⚠️ Caption failed for {path.name}: {exc}")
         return ""
 
 

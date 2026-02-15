@@ -208,14 +208,15 @@ def ingest_file(path: Path, session=None) -> dict:
         # Skip if already persisted
         existing = session.query(pg.Document).filter_by(file_path=str(path.resolve())).first()
         if existing:
-            log.info("Skipping (already stored): %s", path.name)
+            log.info("⏭️  SKIPPED (already stored): %s [doc_id=%d]", path.name, existing.id)
             return {"status": "skipped", "doc_id": existing.id, "reason": "already_exists"}
 
         # 1 – Ingest raw content
+        log.info("🔄 PROCESSING: %s", path.name)
         text, meta = ingest(path)
         if not text.strip():
-            log.warning("Empty content from %s — skipping", path.name)
-            return {"status": "skipped", "reason": "empty_content"}
+            log.warning("⚠️  SKIPPED (empty content): %s", path.name)
+            return {"status": "skipped", "reason": "empty_content", "file_name": path.name}
         rdb.log_event("ingest", {"file": path.name, "modality": meta["modality"]})
 
         # 2 – Chunk
@@ -276,16 +277,17 @@ def ingest_file(path: Path, session=None) -> dict:
         qdb.upsert_points(points)
         rdb.log_event("qdrant_upsert", {"file": path.name, "n_points": len(points)})
 
-        log.info("Ingested %s → doc_id=%d, %d chunks", path.name, doc.id, len(chunks))
+        log.info("✅ SUCCESS: %s → doc_id=%d, %d chunks, %s", path.name, doc.id, len(chunks), meta["modality"])
         return {
             "status": "success",
             "doc_id": doc.id,
             "chunks": len(chunks),
-            "file_name": path.name
+            "file_name": path.name,
+            "modality": meta["modality"]
         }
 
     except Exception as e:
-        log.exception("Failed to ingest %s", path.name)
+        log.exception("❌ FAILED to ingest %s", path.name)
         session.rollback()
         return {"status": "error", "error": str(e), "file_name": path.name}
     finally:
@@ -345,10 +347,12 @@ def ingest_directory(
 
     session = pg.get_session()
     ingested, skipped, failed = 0, 0, 0
+    results = []
 
     for path in files:
         result = ingest_file(path, session=session)
         status = result.get("status")
+        results.append(result)
         if status == "success":
             ingested += 1
         elif status == "skipped":
@@ -357,6 +361,21 @@ def ingest_directory(
             failed += 1
 
     session.close()
+    
+    # Log summary of what was processed
+    log.info("═" * 60)
+    log.info("INGESTION SUMMARY: %d success, %d skipped, %d failed", ingested, skipped, failed)
+    if ingested > 0:
+        log.info("✅ Successfully ingested files:")
+        for r in results:
+            if r.get("status") == "success":
+                log.info("   - %s (doc_id=%d, %d chunks)", r["file_name"], r["doc_id"], r["chunks"])
+    if failed > 0:
+        log.info("❌ Failed files:")
+        for r in results:
+            if r.get("status") == "error":
+                log.info("   - %s: %s", r.get("file_name", "unknown"), r.get("error", "unknown error"))
+    log.info("═" * 60)
 
     # Build / rebuild graphs
     graph_built = False

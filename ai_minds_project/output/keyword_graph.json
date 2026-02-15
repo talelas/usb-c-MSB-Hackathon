@@ -553,6 +553,48 @@
         "fur"
       ],
       "summary": "Image of an orange tabby cat with pink nose, white stripes, and pointed ears against a blurred green background."
+    },
+    {
+      "id": 47,
+      "file_name": "cattt.jpg",
+      "file_path": "C:\\Users\\User\\Downloads\\Nouveau doss\\cattt.jpg",
+      "modality": "image",
+      "keywords": [
+        "Bengal",
+        "cat",
+        "striped",
+        "brown",
+        "pointed"
+      ],
+      "summary": "Bengal cat with striking brown and black striped fur, large pointed ears, golden-brown eyes, and well-groomed texture."
+    },
+    {
+      "id": 48,
+      "file_name": "cattt.jpg",
+      "file_path": "C:\\Users\\User\\Downloads\\Nouveau dffff\\cattt.jpg",
+      "modality": "image",
+      "keywords": [
+        "Bengal cat",
+        "striped pattern",
+        "short fur",
+        "pointed ears",
+        "golden"
+      ],
+      "summary": "Close-up of a Bengal cat with striking brown and black striped fur, large pointed ears, golden-brown eyes, and white whiskers."
+    },
+    {
+      "id": 49,
+      "file_name": "cattt519159.jpg",
+      "file_path": "C:\\Users\\User\\Downloads\\Nouveau dffff\\cattt519159.jpg",
+      "modality": "image",
+      "keywords": [
+        "Bengal cat",
+        "distinctive",
+        "fur pattern",
+        "pointed ears",
+        "whiskers"
+      ],
+      "summary": "Image of Bengal cat with striking brown & black striped fur, large ears, expressive eyes, and long white whiskers."
     }
   ],
   "edges": [
@@ -668,6 +710,18 @@
       "source": 36,
       "target": 37,
       "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 46,
+      "target": 47,
+      "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 48,
+      "target": 49,
+      "weight": 0.25,
       "edge_type": "keyword"
     }
   ]

@@ -121,20 +121,27 @@ def chat(req: ChatRequest):
 def ingest(req: IngestRequest):
     """Run the ingestion pipeline on a directory."""
     global _kw_graph, _sem_graph
+    log.info("📁 Ingestion request: %s (rebuild_graphs=%s)", req.directory, req.rebuild_graphs)
+    
     summary = ingest_directory(
         directory=req.directory,
         rebuild_graphs=req.rebuild_graphs,
     )
     if "error" in summary:
+        log.error("❌ Ingestion failed: %s", summary["error"])
         raise HTTPException(status_code=400, detail=summary["error"])
 
     # Reload graphs if they were rebuilt
     if summary.get("graph_built"):
         try:
+            log.info("🔄 Reloading graphs after ingestion...")
             _kw_graph, _sem_graph = load_all()
-        except Exception:
-            pass
+            log.info("✅ Graphs reloaded successfully")
+        except Exception as e:
+            log.warning("⚠️ Failed to reload graphs: %s", e)
 
+    log.info("✅ Ingestion complete: %d ingested, %d skipped, %d failed", 
+             summary.get("ingested", 0), summary.get("skipped", 0), summary.get("failed", 0))
     return IngestResponse(**summary)
 
 
@@ -143,21 +150,36 @@ def ingest(req: IngestRequest):
 @router.get("/documents", response_model=list[DocumentOut])
 def list_documents():
     """List all ingested documents."""
+    log.info("📄 GET /api/documents - fetching documents...")
     session = pg.get_session()
     try:
         docs = pg.get_all_documents(session)
-        return [
-            DocumentOut(
-                id=d.id,
-                file_name=d.file_name,
-                file_path=d.file_path,
-                modality=d.modality,
-                summary=d.summary or "",
-                keywords=d.keywords or [],
-                num_chunks=d.num_chunks or 0,
-            )
-            for d in docs
-        ]
+        log.info(f"📄 Retrieved {len(docs)} documents from database")
+        
+        result = []
+        for i, d in enumerate(docs):
+            try:
+                doc_out = DocumentOut(
+                    id=d.id,
+                    file_name=d.file_name,
+                    file_path=d.file_path,
+                    modality=d.modality,
+                    summary=d.summary or "",
+                    keywords=d.keywords or [],
+                    num_chunks=d.num_chunks or 0,
+                )
+                result.append(doc_out)
+                if i % 10 == 0:
+                    log.info(f"📄 Serialized {i+1}/{len(docs)} documents...")
+            except Exception as e:
+                log.error(f"❌ Error serializing document {d.id} ({d.file_name}): {e}")
+                continue
+        
+        log.info(f"✅ Returning {len(result)} documents")
+        return result
+    except Exception as e:
+        log.exception(f"❌ Error in list_documents: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         session.close()
 
