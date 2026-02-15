@@ -531,7 +531,7 @@ class PublicCloudMonitor:
             self.event_queue.put(event)
             self.stats['events_generated'] += 1
             
-            # Call callback for hello/bye talel
+            # Call callback for hello/bye talel hello talel
             if self.on_event_callback:
                 self.on_event_callback(event)
             

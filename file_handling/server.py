@@ -121,7 +121,7 @@ def event_processor(event: FileEvent) -> bool:
         except Exception as e:
             logger.error(f"Failed to initialize MemoryProcessor: {e}")
 
-    # Process based on event type
+    # Process based on event type hello talel
     if event_type == "created" or event_type == "modified":
         logger.info(f"Triggering ingestion for: {file_path}")
         
