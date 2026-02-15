@@ -1,12 +1,16 @@
 import { useMemo } from "react";
 import { COLORS, getExtColor, getExtIcon } from "../data/theme";
-import { fileTree, mockFileContent, graphNodes } from "../data/mockData";
 
 export default function RightSidebar({
   selectedNode,
   neighborMap,
   onSelectNode,
   onClose,
+  fileTree = [],
+  graphNodes = [],
+  searchResults = [],
+  searchQuery = "",
+  searchError = null,
   width,
 }) {
   if (!selectedNode) {
@@ -21,6 +25,46 @@ export default function RightSidebar({
             Click on the graph or file tree
           </span>
         </div>
+        {(searchError || searchResults.length > 0) && (
+          <div style={{ ...styles.contentArea, paddingTop: 0 }}>
+            <div style={styles.section}>
+              <div style={styles.sectionTitle}>
+                Search results{searchQuery ? ` for "${searchQuery}"` : ""}
+              </div>
+              {searchError && (
+                <div style={styles.searchError}>{searchError}</div>
+              )}
+              {searchResults.map((result) => {
+                const node = graphNodes.find((n) => n.docId === result.doc_id);
+                const label = node?.name || result.file_name || `Doc ${result.doc_id}`;
+                const ext = node?.ext || "txt";
+                return (
+                  <div
+                    key={result.doc_id}
+                    style={styles.relatedRow}
+                    onClick={() => node && onSelectNode(node)}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.background = COLORS.bgHover)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.background = "transparent")
+                    }
+                  >
+                    <span style={{ marginRight: 5, fontSize: 12 }}>
+                      {getExtIcon(ext)}
+                    </span>
+                    <span style={{ color: getExtColor(ext), flex: 1 }}>
+                      {label}
+                    </span>
+                    <span style={styles.fileMeta}>
+                      {(result.final_score * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -37,7 +81,7 @@ export default function RightSidebar({
   }, [selectedNode.id, isFolder]);
 
   // File content
-  const content = mockFileContent[selectedNode.id] || null;
+  const content = selectedNode.summary || selectedNode.chunk_text || null;
 
   // Connected nodes
   const connectedNodes = useMemo(() => {
@@ -127,6 +171,15 @@ export default function RightSidebar({
                 </span>
               </div>
             )}
+            {selectedNode.keywords && selectedNode.keywords.length > 0 && (
+              <div style={styles.keywordWrap}>
+                {selectedNode.keywords.map((kw) => (
+                  <span key={kw} style={styles.keyword}>
+                    {kw}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -192,6 +245,45 @@ export default function RightSidebar({
                   {isCrossProject && (
                     <span style={styles.crossBadge}>cross</span>
                   )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {searchResults.length > 0 && (
+          <div style={styles.section}>
+            <div style={styles.sectionTitle}>
+              Search results{searchQuery ? ` for "${searchQuery}"` : ""}
+            </div>
+            {searchError && (
+              <div style={styles.searchError}>{searchError}</div>
+            )}
+            {searchResults.map((result) => {
+              const node = graphNodes.find((n) => n.docId === result.doc_id);
+              const label = node?.name || result.file_name || `Doc ${result.doc_id}`;
+              const ext = node?.ext || "txt";
+              return (
+                <div
+                  key={result.doc_id}
+                  style={styles.relatedRow}
+                  onClick={() => node && onSelectNode(node)}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = COLORS.bgHover)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "transparent")
+                  }
+                >
+                  <span style={{ marginRight: 5, fontSize: 12 }}>
+                    {getExtIcon(ext)}
+                  </span>
+                  <span style={{ color: getExtColor(ext), flex: 1 }}>
+                    {label}
+                  </span>
+                  <span style={styles.fileMeta}>
+                    {(result.final_score * 100).toFixed(0)}%
+                  </span>
                 </div>
               );
             })}
@@ -279,6 +371,20 @@ const styles = {
     marginBottom: 8,
   },
   codeBlock: {
+      keywordWrap: {
+        marginTop: 10,
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 6,
+      },
+      keyword: {
+        fontSize: 10,
+        color: COLORS.textDim,
+        background: COLORS.bgActive,
+        border: `1px solid ${COLORS.border}`,
+        padding: "4px 6px",
+        borderRadius: 999,
+      },
     background: COLORS.bgInput,
     border: `1px solid ${COLORS.border}`,
     borderRadius: 6,
@@ -291,6 +397,11 @@ const styles = {
     whiteSpace: "pre",
     maxHeight: 300,
     margin: 0,
+  },
+  searchError: {
+    color: COLORS.accentRed,
+    fontSize: 11,
+    marginBottom: 8,
   },
   noPreview: {
     display: "flex",

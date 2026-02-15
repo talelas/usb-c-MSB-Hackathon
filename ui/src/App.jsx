@@ -5,7 +5,8 @@ import LeftSidebar from "./components/LeftSidebar";
 import RightSidebar from "./components/RightSidebar";
 import SearchBar from "./components/SearchBar";
 import StatusBar from "./components/StatusBar";
-import { graphNodes, graphLinks, buildNeighborMap } from "./data/mockData";
+import { fetchDocuments, searchDocuments } from "./data/api";
+import { buildGraphData, buildNeighborMap } from "./data/graphTransforms";
 import { COLORS } from "./data/theme";
 
 const LEFT_WIDTH = 240;
@@ -19,6 +20,14 @@ export default function App() {
   const [activeTabId, setActiveTabId] = useState(null);
   const [showRight, setShowRight] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const [graphNodes, setGraphNodes] = useState([]);
+  const [graphLinks, setGraphLinks] = useState([]);
+  const [fileTree, setFileTree] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchError, setSearchError] = useState(null);
 
   // Center panel ref for measuring
   const centerRef = useRef(null);
@@ -27,13 +36,23 @@ export default function App() {
   // Graph data (stable reference)
   const graphData = useMemo(
     () => ({ nodes: [...graphNodes], links: [...graphLinks] }),
-    []
+    [graphNodes, graphLinks]
   );
 
   const neighborMap = useMemo(
     () => buildNeighborMap(graphLinks),
-    []
+    [graphLinks]
   );
+
+  const docNodeById = useMemo(() => {
+    const map = new Map();
+    graphNodes.forEach((node) => {
+      if (node.type === "file" && node.docId != null) {
+        map.set(node.docId, node);
+      }
+    });
+    return map;
+  }, [graphNodes]);
 
   // Resize observer for center panel
   useEffect(() => {
@@ -48,6 +67,34 @@ export default function App() {
     ro.observe(el);
     return () => ro.disconnect();
   }, [showRight]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadDocuments = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const docs = await fetchDocuments();
+        if (!isMounted) return;
+        const { nodes, links, fileTree: tree } = buildGraphData(docs || []);
+        setGraphNodes(nodes);
+        setGraphLinks(links);
+        setFileTree(tree);
+      } catch (err) {
+        if (!isMounted) return;
+        setError(err.message || "Failed to load documents");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadDocuments();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // ── Handlers ──
   const handleSelectNode = useCallback((node) => {
@@ -71,7 +118,7 @@ export default function App() {
         setShowRight(true);
       }
     },
-    []
+    [graphNodes]
   );
 
   const handleTabClose = useCallback(
@@ -92,7 +139,7 @@ export default function App() {
         return next;
       });
     },
-    [activeTabId]
+    [activeTabId, graphNodes]
   );
 
   const handleCloseRight = useCallback(() => {
@@ -101,11 +148,33 @@ export default function App() {
     setActiveTabId(null);
   }, []);
 
-  const handleSearch = useCallback((query) => {
-    // Placeholder for backend semantic search
-    console.log("Semantic search:", query);
-    alert(`Semantic search will be sent to backend:\n\n"${query}"\n\n(Backend not connected yet)`);
-  }, []);
+  const handleSearch = useCallback(
+    async (query) => {
+      setSearchQuery(query);
+      setSearchResults([]);
+      setSearchError(null);
+      try {
+        const response = await searchDocuments(query);
+        const results = response?.results || [];
+        setSearchResults(results);
+        if (results.length > 0) {
+          const top = docNodeById.get(results[0].doc_id);
+          if (top) {
+            handleSelectNode(top);
+          } else {
+            setShowRight(true);
+          }
+        } else {
+          setShowRight(true);
+        }
+      } catch (err) {
+        setSearchResults([]);
+        setSearchError(err.message || "Search failed");
+        setShowRight(true);
+      }
+    },
+    [docNodeById, handleSelectNode]
+  );
 
   return (
     <div style={styles.shell}>
@@ -123,6 +192,7 @@ export default function App() {
         <LeftSidebar
           selectedNodeId={selectedNode?.id}
           onSelectNode={handleSelectNode}
+          fileTree={fileTree}
           width={LEFT_WIDTH}
         />
 
@@ -140,10 +210,22 @@ export default function App() {
             height={centerSize.height}
           />
 
+          {(loading || error) && (
+            <div style={styles.centerOverlay}>
+              <div style={styles.centerCard}>
+                <div style={styles.centerTitle}>
+                  {loading ? "Loading documents..." : "Failed to load"}
+                </div>
+                {error && <div style={styles.centerSub}>{error}</div>}
+              </div>
+            </div>
+          )}
+
           {/* Search bar overlay */}
           <SearchBar
             onSelectNode={handleSelectNode}
             onSearch={handleSearch}
+            graphNodes={graphNodes}
           />
         </div>
 
@@ -154,6 +236,11 @@ export default function App() {
             neighborMap={neighborMap}
             onSelectNode={handleSelectNode}
             onClose={handleCloseRight}
+            fileTree={fileTree}
+            graphNodes={graphNodes}
+            searchResults={searchResults}
+            searchQuery={searchQuery}
+            searchError={searchError}
             width={RIGHT_WIDTH}
           />
         )}
@@ -191,5 +278,32 @@ const styles = {
     position: "relative",
     overflow: "hidden",
     minWidth: 0,
+  },
+  centerOverlay: {
+    position: "absolute",
+    inset: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    pointerEvents: "none",
+    zIndex: 10,
+  },
+  centerCard: {
+    background: "#0c0c22cc",
+    border: `1px solid ${COLORS.border}`,
+    borderRadius: 12,
+    padding: "14px 18px",
+    textAlign: "center",
+    boxShadow: "0 10px 30px #00000066",
+  },
+  centerTitle: {
+    color: COLORS.text,
+    fontSize: 14,
+    fontWeight: 600,
+  },
+  centerSub: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+    marginTop: 6,
   },
 };
