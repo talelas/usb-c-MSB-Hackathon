@@ -91,10 +91,13 @@ class OllamaEnricher:
         """Extract keywords using llama"""
         if not self.available or not text:
             return []
-        
+
         try:
-            prompt = f"Extract {num_keywords} important keywords from this text (comma-separated):\n{text[:500]}"
-            
+            prompt = (
+                f"List {num_keywords} important keywords from the following text. "
+                f"Only output a comma-separated list of keywords, nothing else:\n{text[:500]}"
+            )
+
             response = requests.post(
                 f"{self.api_url}/api/generate",
                 json={
@@ -103,17 +106,24 @@ class OllamaEnricher:
                     "stream": False,
                     "temperature": 0.3
                 },
-                timeout=30
+                timeout=60
             )
-            
+
             if response.status_code == 200:
                 result = response.json()
-                keywords_str = result.get('response', '')
-                keywords = [k.strip() for k in keywords_str.split(',')]
-                return [k for k in keywords if k][:num_keywords]
+                keywords_str = result.get('response', '').strip()
+                # Remove markdown-style formatting if present
+                keywords_str = keywords_str.replace('\n', ',').replace('*', '').replace('-', ',')
+                keywords = [k.strip().strip('.') for k in keywords_str.split(',')]
+                keywords = [k for k in keywords if k and len(k) < 50]
+                if keywords:
+                    return keywords[:num_keywords]
+                print(f"⚠ Ollama returned empty keywords: {keywords_str[:100]}")
+            else:
+                print(f"⚠ Ollama keyword endpoint returned status {response.status_code}")
         except Exception as e:
             print(f"⚠ Keyword extraction failed: {e}")
-        
+
         return []
 
 

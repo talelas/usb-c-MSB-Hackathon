@@ -42,8 +42,6 @@ __pycache__/
 *.py[cod]
 
 
-
-
 # Python
 venv/
 __pycache__/

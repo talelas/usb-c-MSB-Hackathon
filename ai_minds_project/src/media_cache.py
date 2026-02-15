@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import os
 from typing import Optional, Dict
 
 from config import MEDIA_TEXT_CACHE_FILE
@@ -20,23 +21,18 @@ class MediaTextCache:
         if self.cache_path.exists():
             try:
                 with open(self.cache_path, "r", encoding="utf-8") as f:
-                    content = f.read()
-                    if not content.strip():
-                        return {"items": {}}
-                    return json.loads(content)
-            except (json.JSONDecodeError, UnicodeDecodeError) as e:
-                print(f"⚠ Corrupt Media Cache JSON detected: {e}")
-                # Create backup
+                    return json.load(f)
+            except json.JSONDecodeError:
+                # Backup corrupt cache and start fresh
+                backup_path = self.cache_path.with_name(f"{self.cache_path.stem}_corrupt_{int(__import__('time').time())}{self.cache_path.suffix}")
                 try:
-                    from datetime import datetime
-                    backup_path = self.cache_path.with_suffix(f".bak.{datetime.now().strftime('%Y%m%d%H%M%S')}")
-                    import shutil
-                    shutil.copy2(self.cache_path, backup_path)
-                    print(f"  ✓ Media cache backup created at: {backup_path}")
-                except Exception as backup_err:
-                    print(f"  ✗ Failed to backup corrupted media cache: {backup_err}")
-                
-                # Return empty state to allow system to start
+                    self.cache_path.replace(backup_path)
+                    print(f"⚠ Corrupt media cache detected. Backed up to: {backup_path}")
+                except Exception:
+                    print(f"⚠ Corrupt media cache at {self.cache_path}; failed to back up automatically.")
+                return {"items": {}}
+            except Exception as e:
+                print(f"⚠ Unexpected error loading media cache: {e}")
                 return {"items": {}}
         return {"items": {}}
 
@@ -98,5 +94,19 @@ class MediaTextCache:
         self.save()
 
     def save(self) -> None:
-        with open(self.cache_path, "w", encoding="utf-8") as f:
-            json.dump(self.data, f, indent=2)
+        # Write to a temporary file and atomically replace the cache to avoid corruption
+        tmp_path = self.cache_path.with_name(f"{self.cache_path.name}.tmp")
+        try:
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(self.data, f, indent=2)
+                f.flush()
+                try:
+                    os.fsync(f.fileno())
+                except Exception:
+                    pass
+            tmp_path.replace(self.cache_path)
+        except Exception as e:
+            print(f"⚠ Failed to write media cache atomically: {e}")
+            # Fallback to regular write
+            with open(self.cache_path, "w", encoding="utf-8") as f:
+                json.dump(self.data, f, indent=2)

@@ -178,7 +178,17 @@ class MemoryProcessor:
 
 
 def main():
-    """Main entry point"""
+    """Main entry point
+
+    Usage: python src/main.py [directory]
+    If `directory` is provided it will process that path, otherwise it processes `DATA_DIR/raw`.
+    """
+
+    import argparse
+
+    parser = argparse.ArgumentParser(description="AI MINDS - File Ingestion & Embedding Pipeline")
+    parser.add_argument("directory", nargs="?", help="Directory to process (defaults to DATA_DIR/raw)")
+    args = parser.parse_args()
 
     print("\n" + "="*60)
     print("🧠 AI MINDS - Cognitive Memory System")
@@ -187,8 +197,11 @@ def main():
 
     processor = MemoryProcessor()
 
-    # Process all files in data/raw directory
-    processor.process_directory(DATA_DIR / "raw")
+    # Process provided directory or default to data/raw
+    if args.directory:
+        processor.process_directory(args.directory)
+    else:
+        processor.process_directory(DATA_DIR / "raw")
 
 
 if __name__ == "__main__":

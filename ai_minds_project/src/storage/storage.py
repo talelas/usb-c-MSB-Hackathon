@@ -26,23 +26,18 @@ class MetadataStorage:
         if self.json_path.exists():
             try:
                 with open(self.json_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                    if not content.strip():
-                        return {'documents': []}
-                    return json.loads(content)
-            except (json.JSONDecodeError, UnicodeDecodeError) as e:
-                print(f"⚠ Corrupt JSON file detected: {e}")
-                # Create backup of corrupted file
-                backup_path = self.json_path.with_suffix(f".bak.{datetime.now().strftime('%Y%m%d%H%M%S')}")
+                    return json.load(f)
+            except json.JSONDecodeError as e:
+                # Backup corrupt file and start fresh
+                backup_path = self.json_path.with_name(f"{self.json_path.stem}_corrupt_{datetime.now().strftime('%Y%m%d%H%M%S')}{self.json_path.suffix}")
                 try:
-                    import shutil
-                    if self.json_path.exists():
-                        shutil.copy2(self.json_path, backup_path)
-                        print(f"  ✓ Backup created at: {backup_path}")
-                except Exception as backup_err:
-                    print(f"  ✗ Failed to backup corrupted file: {backup_err}")
-                
-                # Return empty state to allow system to start
+                    self.json_path.replace(backup_path)
+                    print(f"⚠ Corrupt JSON detected. Backed up to: {backup_path}")
+                except Exception:
+                    print(f"⚠ Corrupt JSON detected at {self.json_path} and failed to back up automatically.")
+                return {'documents': []}
+            except Exception as e:
+                print(f"⚠ Unexpected error loading JSON: {e}")
                 return {'documents': []}
         return {'documents': []}
     
