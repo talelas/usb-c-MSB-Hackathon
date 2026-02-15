@@ -1,6 +1,7 @@
 """Build two types of memory graphs: keyword-based (logical) and semantic-based."""
 from __future__ import annotations
 
+import csv
 import json
 import sys
 from pathlib import Path
@@ -8,6 +9,7 @@ from typing import Dict, List, Tuple
 
 import networkx as nx
 import numpy as np
+from qdrant_client import QdrantClient
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
@@ -15,16 +17,62 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 from config import OUTPUT_DIR
 
 
-def load_data() -> List[Dict]:
-    """Load document metadata and embeddings."""
-    meta_path = OUTPUT_DIR / "metadata_embeddings.json"
-    if not meta_path.exists():
-        raise FileNotFoundError(f"Missing: {meta_path}")
+def load_csv_data() -> List[Dict]:
+    """Load document metadata from CSV for keyword graph."""
+    csv_path = OUTPUT_DIR / "metadata_embeddings.csv"
+    if not csv_path.exists():
+        raise FileNotFoundError(f"Missing: {csv_path}")
 
-    with open(meta_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    documents = []
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                doc_id_str = row.get("doc_id", "0")
+                # Skip merge conflict markers
+                if "<<<<<<" in doc_id_str or ">>>>>>" in doc_id_str or "======" in doc_id_str:
+                    continue
+                doc_id = int(doc_id_str)
+                keywords_str = row.get("keywords", "")
+                # Parse keywords - they may contain newlines and commas
+                keywords = [k.strip() for k in keywords_str.split(",") if k.strip()]
+                
+                documents.append({
+                    "id": doc_id,
+                    "file_name": row.get("file_name"),
+                    "file_path": row.get("file_path"),
+                    "modality": row.get("modality"),
+                    "keywords": keywords,
+                    "summary": row.get("summary", ""),
+                })
+            except (ValueError, KeyError) as e:
+                # Skip malformed rows
+                continue
+    
+    return documents
 
-    return data.get("documents", [])
+
+def load_qdrant_embeddings(client: QdrantClient, collection: str) -> Dict[int, List[float]]:
+    """Load embeddings from Qdrant for semantic graph."""
+    # Scroll through all points
+    points, next_offset = client.scroll(
+        collection_name=collection,
+        limit=10000,
+        with_payload=True,
+        with_vectors=True,
+    )
+    
+    # Group by doc_id and take first chunk embedding as doc representation
+    doc_embeddings = {}
+    for point in points:
+        payload = point.payload or {}
+        doc_id = payload.get("doc_id")
+        chunk_index = payload.get("chunk_index", 0)
+        
+        if doc_id and chunk_index == 0:  # Only use first chunk
+            doc_embeddings[doc_id] = point.vector
+    
+    return doc_embeddings
 
 
 def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
@@ -48,22 +96,21 @@ def jaccard_similarity(set1: set, set2: set) -> float:
     return intersection / union if union > 0 else 0.0
 
 
-def build_keyword_graph(documents: List[Dict], threshold: float = 0.1) -> nx.Graph:
+def build_keyword_graph(documents: List[Dict], threshold: float = 0.0) -> nx.Graph:
     """Build graph with edges based on shared keywords (logical connections)."""
     G = nx.Graph()
 
     # Add nodes
     for doc in documents:
         doc_id = doc.get("id")
-        file_meta = doc.get("file_metadata", {})
         keywords = doc.get("keywords", [])
         G.add_node(
             doc_id,
-            file_name=file_meta.get("file_name"),
-            file_path=file_meta.get("file_path"),
-            modality=file_meta.get("modality"),
+            file_name=doc.get("file_name"),
+            file_path=doc.get("file_path"),
+            modality=doc.get("modality"),
             keywords=keywords,
-            summary=doc.get("text_summary", ""),
+            summary=doc.get("summary", ""),
         )
 
     # Add edges based on keyword overlap
@@ -84,32 +131,26 @@ def build_keyword_graph(documents: List[Dict], threshold: float = 0.1) -> nx.Gra
 
 
 def build_semantic_graph(
-    documents: List[Dict], threshold: float = 0.5, max_edges_per_node: int = 10
+    documents: List[Dict],
+    doc_embeddings: Dict[int, List[float]],
+    threshold: float = 0.5,
+    max_edges_per_node: int = 10,
 ) -> nx.Graph:
-    """Build graph with edges based on embedding similarity (semantic connections)."""
+    """Build graph with edges based on embedding similarity from Qdrant (semantic connections)."""
     G = nx.Graph()
 
     # Add nodes
     for doc in documents:
         doc_id = doc.get("id")
-        file_meta = doc.get("file_metadata", {})
         keywords = doc.get("keywords", [])
         G.add_node(
             doc_id,
-            file_name=file_meta.get("file_name"),
-            file_path=file_meta.get("file_path"),
-            modality=file_meta.get("modality"),
+            file_name=doc.get("file_name"),
+            file_path=doc.get("file_path"),
+            modality=doc.get("modality"),
             keywords=keywords,
-            summary=doc.get("text_summary", ""),
+            summary=doc.get("summary", ""),
         )
-
-    # Collect embeddings (use first chunk embedding as document representation)
-    doc_embeddings = {}
-    for doc in documents:
-        doc_id = doc.get("id")
-        chunks = doc.get("chunks", [])
-        if chunks:
-            doc_embeddings[doc_id] = chunks[0].get("embedding", [])
 
     # Add edges based on embedding similarity
     doc_ids = list(doc_embeddings.keys())
@@ -185,22 +226,29 @@ def main() -> None:
     print("🧠 AI Minds - Graph Memory Builder")
     print("="*60)
 
-    # Load data
-    print("\n📂 Loading documents...")
-    documents = load_data()
+    # Load data from CSV
+    print("\n📂 Loading documents from CSV...")
+    documents = load_csv_data()
     print(f"✓ Loaded {len(documents)} documents")
 
     # Build keyword graph
     print("\n🔗 Building keyword-based (logical) graph...")
-    keyword_graph = build_keyword_graph(documents, threshold=0.1)
+    keyword_graph = build_keyword_graph(documents, threshold=0.0)
     keyword_output = OUTPUT_DIR / "keyword_graph.json"
     export_graph(keyword_graph, keyword_output)
     print(f"✓ Saved to: {keyword_output}")
     print_graph_stats(keyword_graph, "Keyword-Based")
 
+    # Load embeddings from Qdrant
+    print("\n📥 Loading embeddings from Qdrant...")
+    client = QdrantClient(host="127.0.0.1", port=6333)
+    collection = "ai_minds_embeddings"
+    doc_embeddings = load_qdrant_embeddings(client, collection)
+    print(f"✓ Loaded {len(doc_embeddings)} document embeddings")
+
     # Build semantic graph
     print("\n🌐 Building semantic-based graph...")
-    semantic_graph = build_semantic_graph(documents, threshold=0.5, max_edges_per_node=10)
+    semantic_graph = build_semantic_graph(documents, doc_embeddings, threshold=0.5, max_edges_per_node=10)
     semantic_output = OUTPUT_DIR / "semantic_graph.json"
     export_graph(semantic_graph, semantic_output)
     print(f"✓ Saved to: {semantic_output}")
