@@ -216,6 +216,40 @@ def pipeline_logs(last_n: int = 50):
 
 # ── Graphs ───────────────────────────────────────────────────
 
+@router.get("/graphs")
+def get_graphs():
+    """Return combined keyword + semantic graph data for the frontend."""
+    nodes: dict[int, dict] = {}
+    edges: list[dict] = []
+
+    # Collect nodes from both graphs
+    for G, graph_type in [(_kw_graph, "keyword"), (_sem_graph, "semantic")]:
+        for n in G.nodes():
+            if n not in nodes:
+                data = dict(G.nodes[n])
+                data["id"] = n
+                nodes[n] = data
+
+    # Collect edges (deduplicate identical source-target pairs)
+    seen_edges: set[tuple] = set()
+    for G, graph_type in [(_kw_graph, "keyword"), (_sem_graph, "semantic")]:
+        for u, v, d in G.edges(data=True):
+            key = (min(u, v), max(u, v))
+            if key not in seen_edges:
+                seen_edges.add(key)
+                edges.append({
+                    "source": u,
+                    "target": v,
+                    "weight": d.get("weight", 0),
+                    "edge_type": d.get("edge_type", graph_type),
+                })
+
+    return {
+        "nodes": list(nodes.values()),
+        "edges": edges,
+    }
+
+
 @router.post("/graphs/rebuild")
 def rebuild_graphs():
     """Force rebuild of keyword + semantic graphs."""
