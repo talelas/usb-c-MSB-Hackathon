@@ -21,7 +21,7 @@ from config import (
     AUDIO_TRANSCRIBE_COMPUTE_TYPE,
     DATA_DIR,
 )
-from media_cache import MediaTextCache
+from src.media_cache import MediaTextCache
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp"}
 AUDIO_EXTS = {".mp3", ".wav", ".m4a", ".flac"}
