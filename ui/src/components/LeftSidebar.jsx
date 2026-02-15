@@ -1,6 +1,5 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { COLORS, getExtColor, getExtIcon } from "../data/theme";
-import { fileTree } from "../data/mockData";
 
 // ─── Tree Item (recursive) ──────────────────────────────────────────
 function TreeItem({ item, depth, selectedId, onSelect, expandedIds, onToggleExpand }) {
@@ -69,13 +68,17 @@ function TreeItem({ item, depth, selectedId, onSelect, expandedIds, onToggleExpa
 }
 
 // ─── Left Sidebar ───────────────────────────────────────────────────
-export default function LeftSidebar({ selectedNodeId, onSelectNode, width }) {
+export default function LeftSidebar({ selectedNodeId, onSelectNode, fileTree = [], width }) {
   const [activeTab, setActiveTab] = useState("explorer");
   const [expandedIds, setExpandedIds] = useState(
     new Set(fileTree.map((f) => f.id))
   );
   const [filterText, setFilterText] = useState("");
   const [minImportance, setMinImportance] = useState(0);
+
+  useEffect(() => {
+    setExpandedIds(new Set(fileTree.map((f) => f.id)));
+  }, [fileTree]);
 
   const onToggleExpand = (id) => {
     setExpandedIds((prev) => {

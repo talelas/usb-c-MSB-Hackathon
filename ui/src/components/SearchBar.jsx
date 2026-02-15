@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { COLORS, getExtColor, getExtIcon } from "../data/theme";
-import { graphNodes } from "../data/mockData";
 
-export default function SearchBar({ onSelectNode, onSearch }) {
+export default function SearchBar({ onSelectNode, onSearch, graphNodes = [] }) {
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState(0);
