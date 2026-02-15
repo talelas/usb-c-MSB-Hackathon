@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Environment variables
+.env
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Project specific
+fastembed_cache/
+output/
+*_cache/
+transcription.txt
+*.log
+
+# Large data files / Models
+*.onnx
+*.pt
+*.pth
+*.bin

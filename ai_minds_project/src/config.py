@@ -25,10 +25,18 @@ PHOTO_INGESTION_PROMPT = "Describe this image in detail."
 PHOTO_INGESTION_TIMEOUT = 300  # Increased for CPU inference (can exceed 180 seconds)
 
 # Audio transcription (faster-whisper)
+try:
+    import torch
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    compute_type = "float16" if device == "cuda" else "int8"
+except ImportError:
+    device = "cpu"
+    compute_type = "int8"
+
 AUDIO_TRANSCRIBE_ENABLED = True
 AUDIO_TRANSCRIBE_MODEL = "base"
-AUDIO_TRANSCRIBE_DEVICE = "cpu"
-AUDIO_TRANSCRIBE_COMPUTE_TYPE = "int8"
+AUDIO_TRANSCRIBE_DEVICE = device
+AUDIO_TRANSCRIBE_COMPUTE_TYPE = compute_type
 
 # Storage control (production memory optimization)
 STORE_MEDIA_TEXT_IN_METADATA = True
