@@ -18,6 +18,78 @@ from app.llm.prompts import build_rag_messages
 log = logging.getLogger(__name__)
 
 
+def filter_relevant_documents(
+    query: str,
+    results: List[Dict],
+    *,
+    verify_relevance: bool = False,
+    min_confidence: float = 0.0,
+) -> List[Dict]:
+    """Filter retrieved documents based on relevance verification.
+    
+    Parameters
+    ----------
+    query : str
+        The user's query.
+    results : list[dict]
+        Retrieved documents from the retrieval system.
+    verify_relevance : bool
+        Whether to use LLM to verify each document's relevance.
+    min_confidence : float
+        Minimum score threshold (0-1) to keep a document even without LLM verification.
+    
+    Returns
+    -------
+    list[dict]
+        Filtered list of relevant documents.
+    """
+    if not results:
+        return results
+    
+    filtered = []
+    
+    for result in results:
+        # Always keep high-confidence results
+        if result.get("final_score", 0) >= min_confidence and min_confidence > 0:
+            filtered.append(result)
+            continue
+        
+        # Skip verification if not enabled
+        if not verify_relevance:
+            filtered.append(result)
+            continue
+        
+        # Verify relevance using LLM
+        doc_text = result.get("chunk_text") or result.get("summary", "")
+        if not doc_text:
+            continue
+        
+        try:
+            is_relevant = llm.verify_relevance(query, doc_text)
+            if is_relevant:
+                result["verified"] = True
+                filtered.append(result)
+            else:
+                log.debug(
+                    "Document filtered as irrelevant | doc_id=%s | score=%.3f",
+                    result.get("doc_id"),
+                    result.get("final_score", 0),
+                )
+        except Exception as e:
+            log.warning("Relevance verification failed: %s", e)
+            # On error, keep the document (fail-open)
+            filtered.append(result)
+    
+    log.info(
+        "Filtered documents | original=%d | relevant=%d | verify_enabled=%s",
+        len(results),
+        len(filtered),
+        verify_relevance,
+    )
+    
+    return filtered
+
+
 def answer(
     query: str,
     kw_graph: nx.Graph,
@@ -27,6 +99,8 @@ def answer(
     top_k: int = 10,
     history_turns: int = 10,
     temperature: float = 0.5,  # Lower temp = more focused/deterministic
+    verify_relevance: bool = False,  # Enable LLM-based relevance verification
+    min_confidence: float = 0.5,  # Minimum score to skip verification
 ) -> Dict[str, Any]:
     """End-to-end RAG: retrieval → prompt assembly → LLM generation.
 
@@ -44,6 +118,11 @@ def answer(
         How many previous conversation turns to include.
     temperature : float
         LLM sampling temperature.
+    verify_relevance : bool
+        Whether to use LLM to verify document relevance before using them.
+    min_confidence : float
+        Minimum retrieval score to automatically keep a document (0-1).
+        Documents below this will be verified if verify_relevance=True.
 
     Returns
     -------
@@ -65,6 +144,24 @@ def answer(
         gamma=0.1,   # Temporal/recency weight
         delta=0.1,   # Importance weight
     )
+
+    # 2.5. Filter documents by relevance (optional)
+    if verify_relevance or min_confidence > 0:
+        results = filter_relevant_documents(
+            query,
+            results,
+            verify_relevance=verify_relevance,
+            min_confidence=min_confidence,
+        )
+    
+    # Handle case where all documents were filtered out
+    if not results:
+        log.warning("All documents filtered as irrelevant | session=%s", session_id)
+        return {
+            "answer": "I couldn't find any relevant documents to answer your question. Please try rephrasing or asking about a different topic.",
+            "sources": [],
+            "session_id": session_id,
+        }
 
     # 3. Build prompt messages
     messages = build_rag_messages(query, results, history or None)

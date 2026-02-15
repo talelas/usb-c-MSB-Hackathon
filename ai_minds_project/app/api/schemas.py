@@ -13,6 +13,8 @@ class ChatRequest(BaseModel):
     session_id: str = Field(default="default", description="Conversation session ID")
     top_k: int = Field(default=10, ge=1, le=50, description="Number of context chunks")
     temperature: float = Field(default=0.5, ge=0.0, le=2.0, description="LLM temperature (lower = more focused)")
+    verify_relevance: bool = Field(default=False, description="Use LLM to verify document relevance before using them")
+    min_confidence: float = Field(default=0.5, ge=0.0, le=1.0, description="Minimum score to auto-keep documents (0-1)")
 
 
 class SourceInfo(BaseModel):

@@ -46,6 +46,42 @@ def format_context(results: List[Dict]) -> str:
     return "\n\n".join(parts)
 
 
+# ── Relevance verification prompt ───────────────────────────
+
+RELEVANCE_VERIFICATION_PROMPT = (
+    "You are a document relevance verifier. Your task is to determine if a document is relevant to answer a user's query.\n\n"
+    "Guidelines:\n"
+    "- Analyze whether the document contains information that helps answer the query.\n"
+    "- Consider semantic relevance, not just keyword matching.\n"
+    "- Be strict: only mark as relevant if the document genuinely helps answer the query.\n"
+    "- Respond with ONLY 'yes' or 'no' - no explanation needed.\n\n"
+    "Query: {query}\n\n"
+    "Document:\n{document}\n\n"
+    "Is this document relevant to answering the query? (yes/no):"
+)
+
+
+def build_relevance_verification_prompt(query: str, document: str) -> str:
+    """Build a prompt to verify if a document is relevant to the query.
+    
+    Parameters
+    ----------
+    query : str
+        The user's query.
+    document : str
+        The document content to verify.
+    
+    Returns
+    -------
+    str
+        Formatted verification prompt.
+    """
+    return RELEVANCE_VERIFICATION_PROMPT.format(
+        query=query,
+        document=document[:2000]  # Limit document length to avoid token overflow
+    )
+
+
 def build_rag_messages(
     query: str,
     context_results: List[Dict],
