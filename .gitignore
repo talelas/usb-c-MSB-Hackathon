@@ -40,3 +40,68 @@ transcription.txt
 # Byte-compiled / optimized / DLL files
 __pycache__/    
 *.py[cod]
+
+
+
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+file_handling/__pycache__/
+file_handling/tmp/
+
+# Environment
+.env
+*.env
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Testing
+test_data/
+bulk_test/
+test_types/
+
+# Data and Logs
+data/
+logs/
+*.log
+*.db
+*.sqlite
+*.sqlite3
+
+# Models
+models/
+*.bin
+*.gguf
+*.pt
+*.pth
+
+# Google Drive credentials
+credentials.json
+token.pickle
+token.json
+
+# Temporary files
+*.tmp
+temp/
+tmp/
