@@ -3,6 +3,7 @@ import ConstellationGraph from "./ConstellationGraph";
 import TopBar from "./components/TopBar";
 import LeftSidebar from "./components/LeftSidebar";
 import RightSidebar from "./components/RightSidebar";
+import ChatPanel from "./components/ChatPanel";
 import SearchBar from "./components/SearchBar";
 import StatusBar from "./components/StatusBar";
 import { fetchDocuments, searchDocuments } from "./data/api";
@@ -10,7 +11,7 @@ import { buildGraphData, buildNeighborMap } from "./data/graphTransforms";
 import { COLORS } from "./data/theme";
 
 const LEFT_WIDTH = 240;
-const RIGHT_WIDTH = 300;
+const RIGHT_WIDTH = 400;
 
 export default function App() {
   // ── State ──
@@ -19,6 +20,7 @@ export default function App() {
   const [openTabs, setOpenTabs] = useState([]);
   const [activeTabId, setActiveTabId] = useState(null);
   const [showRight, setShowRight] = useState(false);
+  const [rightPanelMode, setRightPanelMode] = useState("document"); // "document" or "chat"
   const [zoom, setZoom] = useState(1);
   const [graphNodes, setGraphNodes] = useState([]);
   const [graphLinks, setGraphLinks] = useState([]);
@@ -100,6 +102,7 @@ export default function App() {
   const handleSelectNode = useCallback((node) => {
     setSelectedNode(node);
     setShowRight(true);
+    setRightPanelMode("document");
 
     // Add to tabs if not already open
     setOpenTabs((prev) => {
@@ -116,6 +119,7 @@ export default function App() {
       if (node) {
         setSelectedNode(node);
         setShowRight(true);
+        setRightPanelMode("document");
       }
     },
     [graphNodes]
@@ -147,6 +151,15 @@ export default function App() {
     setSelectedNode(null);
     setActiveTabId(null);
   }, []);
+
+  const handleToggleChat = useCallback(() => {
+    if (showRight && rightPanelMode === "chat") {
+      setShowRight(false);
+    } else {
+      setShowRight(true);
+      setRightPanelMode("chat");
+    }
+  }, [showRight, rightPanelMode]);
 
   const handleSearch = useCallback(
     async (query) => {
@@ -227,22 +240,45 @@ export default function App() {
             onSearch={handleSearch}
             graphNodes={graphNodes}
           />
+
+          {/* Chat toggle button */}
+          <button
+            style={{
+              ...styles.chatToggle,
+              background: showRight && rightPanelMode === "chat" ? COLORS.accent : COLORS.bgPanel,
+              color: showRight && rightPanelMode === "chat" ? COLORS.bg : COLORS.text,
+            }}
+            onClick={handleToggleChat}
+            title="Toggle AI Chat"
+          >
+            💬
+          </button>
         </div>
 
-        {/* Right Sidebar */}
+        {/* Right Sidebar - Document or Chat */}
         {showRight && (
-          <RightSidebar
-            selectedNode={selectedNode}
-            neighborMap={neighborMap}
-            onSelectNode={handleSelectNode}
-            onClose={handleCloseRight}
-            fileTree={fileTree}
-            graphNodes={graphNodes}
-            searchResults={searchResults}
-            searchQuery={searchQuery}
-            searchError={searchError}
-            width={RIGHT_WIDTH}
-          />
+          <>
+            {rightPanelMode === "document" ? (
+              <RightSidebar
+                selectedNode={selectedNode}
+                neighborMap={neighborMap}
+                onSelectNode={handleSelectNode}
+                onClose={handleCloseRight}
+                fileTree={fileTree}
+                graphNodes={graphNodes}
+                searchResults={searchResults}
+                searchQuery={searchQuery}
+                searchError={searchError}
+                width={RIGHT_WIDTH}
+              />
+            ) : (
+              <ChatPanel
+                sessionId="default"
+                onClose={handleCloseRight}
+                width={RIGHT_WIDTH}
+              />
+            )}
+          </>
         )}
       </div>
 
@@ -305,5 +341,23 @@ const styles = {
     color: COLORS.textMuted,
     fontSize: 12,
     marginTop: 6,
+  },
+  chatToggle: {
+    position: "absolute",
+    top: 24,
+    right: 24,
+    width: 50,
+    height: 50,
+    borderRadius: "50%",
+    border: `1px solid ${COLORS.border}`,
+    backdropFilter: "blur(16px)",
+    fontSize: 24,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "all 0.2s",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+    zIndex: 20,
   },
 };

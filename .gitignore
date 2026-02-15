@@ -59,3 +59,7 @@ token.json
 *.tmp
 temp/
 tmp/
+
+
+add node modules
+node_modules/
