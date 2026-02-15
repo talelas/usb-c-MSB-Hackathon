@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.7.4
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aiminds}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aiminds}
+      POSTGRES_DB: ${POSTGRES_DB:-aiminds}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aiminds}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  qdrant_data:
+  postgres_data:
+  redis_data:
