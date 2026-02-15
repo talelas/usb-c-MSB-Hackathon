@@ -1,4 +1,14 @@
-torch
+# If GPU support is needed, use the following command to install the packages with CUDA 12.1 support:
+
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+torch==2.5.1+cu121
+torchvision==0.20.1+cu121
+torchaudio==2.5.1+cu121
+
+#if CPU support is sufficient, use the following command to install the packages without CUDA support:
+#torch
+
 transformers
 accelerate
 qwen-vl-utils
