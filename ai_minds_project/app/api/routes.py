@@ -104,6 +104,8 @@ def chat(req: ChatRequest):
         session_id=req.session_id,
         top_k=req.top_k,
         temperature=req.temperature,
+        verify_relevance=req.verify_relevance,
+        min_confidence=req.min_confidence,
     )
     return ChatResponse(**result)
 

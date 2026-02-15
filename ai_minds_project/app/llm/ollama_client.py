@@ -85,6 +85,61 @@ def generate(
     return ""
 
 
+def verify_relevance(
+    query: str,
+    document_text: str,
+    *,
+    model: str | None = None,
+    temperature: float = 0.1,  # Low temp for consistent yes/no
+    timeout: int = 30,
+) -> bool:
+    """Verify if a document is relevant to a query.
+    
+    Uses the LLM to determine if the document contains information
+    relevant to answering the query.
+    
+    Parameters
+    ----------
+    query : str
+        The user's query.
+    document_text : str
+        The document content to verify.
+    model : str, optional
+        Override the default OLLAMA_MODEL.
+    temperature : float
+        Low temperature for consistent binary decision.
+    timeout : int
+        HTTP timeout in seconds.
+    
+    Returns
+    -------
+    bool
+        True if document is relevant, False otherwise.
+    """
+    from app.llm.prompts import build_relevance_verification_prompt
+    
+    prompt = build_relevance_verification_prompt(query, document_text)
+    response = generate(prompt, model=model, temperature=temperature, timeout=timeout)
+    
+    # Parse response - look for yes/no
+    response_lower = response.lower().strip()
+    
+    # Check for explicit yes/no
+    if response_lower.startswith("yes"):
+        return True
+    elif response_lower.startswith("no"):
+        return False
+    
+    # Fallback: check if 'yes' or 'no' appears in response
+    if "yes" in response_lower and "no" not in response_lower:
+        return True
+    elif "no" in response_lower and "yes" not in response_lower:
+        return False
+    
+    # Default to True if uncertain (to avoid over-filtering)
+    return True
+
+
 def is_available() -> bool:
     """Check whether the Ollama server is reachable."""
     try:
