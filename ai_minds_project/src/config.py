@@ -30,10 +30,18 @@ GENERATE_MEDIA_TEXT = False  # Set True only when running on faster hardware
 MEDIA_TEXT_CACHE_FILE = OUTPUT_DIR / "media_text_cache.json"
 
 # Audio transcription (faster-whisper)
+try:
+    import torch
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    compute_type = "float16" if device == "cuda" else "int8"
+except ImportError:
+    device = "cpu"
+    compute_type = "int8"
+
 AUDIO_TRANSCRIBE_ENABLED = True
 AUDIO_TRANSCRIBE_MODEL = "base"
-AUDIO_TRANSCRIBE_DEVICE = "cpu"
-AUDIO_TRANSCRIBE_COMPUTE_TYPE = "int8"
+AUDIO_TRANSCRIBE_DEVICE = device
+AUDIO_TRANSCRIBE_COMPUTE_TYPE = compute_type
 
 # Storage control (production memory optimization)
 STORE_MEDIA_TEXT_IN_METADATA = True
