@@ -24,8 +24,21 @@ class MetadataStorage:
     def _load_json(self) -> Dict:
         """Load existing JSON data"""
         if self.json_path.exists():
-            with open(self.json_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
+            try:
+                with open(self.json_path, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            except json.JSONDecodeError as e:
+                # Backup corrupt file and start fresh
+                backup_path = self.json_path.with_name(f"{self.json_path.stem}_corrupt_{datetime.now().strftime('%Y%m%d%H%M%S')}{self.json_path.suffix}")
+                try:
+                    self.json_path.replace(backup_path)
+                    print(f"⚠ Corrupt JSON detected. Backed up to: {backup_path}")
+                except Exception:
+                    print(f"⚠ Corrupt JSON detected at {self.json_path} and failed to back up automatically.")
+                return {'documents': []}
+            except Exception as e:
+                print(f"⚠ Unexpected error loading JSON: {e}")
+                return {'documents': []}
         return {'documents': []}
     
     def add_document(self, processed_data: Dict) -> None:
