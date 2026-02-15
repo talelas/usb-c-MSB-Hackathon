@@ -33,7 +33,7 @@ PHOTO_INGESTION_TIMEOUT = 300  # Increased for CPU inference (can exceed 180 sec
 
 # Media text caching (use captions/transcripts from JSON to avoid slow inference)
 USE_MEDIA_TEXT_CACHE = os.getenv("USE_MEDIA_TEXT_CACHE", "True").lower() in ("1", "true", "yes")
-GENERATE_MEDIA_TEXT = os.getenv("GENERATE_MEDIA_TEXT", "False").lower() in ("1", "true", "yes")
+GENERATE_MEDIA_TEXT = os.getenv("GENERATE_MEDIA_TEXT", "True").lower() in ("1", "true", "yes")
 MEDIA_TEXT_CACHE_FILE = OUTPUT_DIR / "media_text_cache.json"
 
 # Audio transcription (faster-whisper)

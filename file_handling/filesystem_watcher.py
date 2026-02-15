@@ -207,10 +207,23 @@ class FilesystemWatcher(FileSystemEventHandler):
             dest.parent.mkdir(parents=True, exist_ok=True)
             
             # Copy file (overwrite if exists to avoid duplicates)
-            shutil.copy2(src, dest)
-            logger.debug(f"Copied {src.name} to tmp")
-            return dest
+            # Try/Catch for specific permission error on Windows
+            try:
+                shutil.copy2(src, dest)
+                logger.debug(f"Copied {src.name} to tmp")
+                return dest
+            except PermissionError:
+                # Retry once after short delay - Windows file locking
+                time.sleep(0.5)
+                shutil.copy2(src, dest)
+                logger.debug(f"Copied {src.name} to tmp (after retry)")
+                return dest
         except Exception as e:
+            # If copy fails, we can still process the original file directly
+            if isinstance(e, PermissionError) or "Permission denied" in str(e):
+                logger.warning(f"Could not copy to tmp (Permission denied). Using original file: {src}")
+                return src
+            
             logger.error(f"Failed to copy to tmp: {e}")
             return None
     
