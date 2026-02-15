@@ -24,8 +24,26 @@ class MetadataStorage:
     def _load_json(self) -> Dict:
         """Load existing JSON data"""
         if self.json_path.exists():
-            with open(self.json_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
+            try:
+                with open(self.json_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    if not content.strip():
+                        return {'documents': []}
+                    return json.loads(content)
+            except (json.JSONDecodeError, UnicodeDecodeError) as e:
+                print(f"⚠ Corrupt JSON file detected: {e}")
+                # Create backup of corrupted file
+                backup_path = self.json_path.with_suffix(f".bak.{datetime.now().strftime('%Y%m%d%H%M%S')}")
+                try:
+                    import shutil
+                    if self.json_path.exists():
+                        shutil.copy2(self.json_path, backup_path)
+                        print(f"  ✓ Backup created at: {backup_path}")
+                except Exception as backup_err:
+                    print(f"  ✗ Failed to backup corrupted file: {backup_err}")
+                
+                # Return empty state to allow system to start
+                return {'documents': []}
         return {'documents': []}
     
     def add_document(self, processed_data: Dict) -> None:

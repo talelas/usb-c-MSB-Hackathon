@@ -18,8 +18,26 @@ class MediaTextCache:
 
     def _load(self) -> Dict:
         if self.cache_path.exists():
-            with open(self.cache_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+            try:
+                with open(self.cache_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                    if not content.strip():
+                        return {"items": {}}
+                    return json.loads(content)
+            except (json.JSONDecodeError, UnicodeDecodeError) as e:
+                print(f"⚠ Corrupt Media Cache JSON detected: {e}")
+                # Create backup
+                try:
+                    from datetime import datetime
+                    backup_path = self.cache_path.with_suffix(f".bak.{datetime.now().strftime('%Y%m%d%H%M%S')}")
+                    import shutil
+                    shutil.copy2(self.cache_path, backup_path)
+                    print(f"  ✓ Media cache backup created at: {backup_path}")
+                except Exception as backup_err:
+                    print(f"  ✗ Failed to backup corrupted media cache: {backup_err}")
+                
+                # Return empty state to allow system to start
+                return {"items": {}}
         return {"items": {}}
 
     def _key(self, path: Path) -> str:

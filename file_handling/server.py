@@ -29,6 +29,25 @@ else:
     from .public_cloud_monitor import PublicCloudMonitor
     from .config import paths, ingestion, GOOGLE_API_KEY
 
+# Add ai_minds_project/src to path for ingestion integration
+try:
+    project_root = Path(__file__).parent.parent
+    ai_minds_src = project_root / "ai_minds_project" / "src"
+    if str(ai_minds_src) not in sys.path:
+        sys.path.append(str(ai_minds_src))
+    
+    # Import MemoryProcessor from ai_minds_project
+    # Note: ai_minds_project.src.main does relative imports assuming it's in sys.path
+    from main import MemoryProcessor
+    AI_MINDS_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Could not import AI Minds Project: {e}")
+    AI_MINDS_AVAILABLE = False
+    class MemoryProcessor:
+        def process_file(self, path): 
+            logger.warning(f"Mock processing {path}")
+            return True
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
@@ -79,21 +98,48 @@ class FileEventResponse(BaseModel):
 event_queue: Optional[EventQueue] = None
 filesystem_monitor: Optional[FilesystemMonitor] = None
 cloud_monitor: Optional[PublicCloudMonitor] = None
+memory_processor: Optional[MemoryProcessor] = None  # Add MemoryProcessor instance
 event_history: List[FileEvent] = []
 MAX_HISTORY = 1000
 
 
 def event_processor(event: FileEvent) -> bool:
-    """Process file events - log and store in history."""
-    # Print hello/bye talel
+    """Process file events - ingest into AI Minds Project."""
+    # Handle event type
     event_type = event.event_type
     if isinstance(event_type, EventType):
         event_type = event_type.value
     
-    if event_type in ["created", "modified"]:
-        print("hello talel")
+    file_path = event.file_path
+    
+    # Initialize processor if needed (lazy init for thread safety/context)
+    global memory_processor
+    if memory_processor is None and AI_MINDS_AVAILABLE:
+        try:
+            logger.info("Initializing MemoryProcessor for ingestion...")
+            memory_processor = MemoryProcessor()
+        except Exception as e:
+            logger.error(f"Failed to initialize MemoryProcessor: {e}")
+
+    # Process based on event type
+    if event_type == "created" or event_type == "modified":
+        logger.info(f"Triggering ingestion for: {file_path}")
+        
+        if memory_processor:
+            try:
+                # Process the file using AI Minds Project
+                success = memory_processor.process_file(file_path)
+                if success:
+                    logger.info(f"Successfully ingested: {file_path}")
+                else:
+                    logger.warning(f"Ingestion returned false for: {file_path}")
+            except Exception as e:
+                logger.error(f"Error during ingestion of {file_path}: {e}")
+        else:
+             logger.warning("MemoryProcessor not available, skipping ingestion")
+             
     elif event_type == "deleted":
-        print("bye talel")
+        logger.info(f"File deleted: {file_path} - Updates to vector DB not yet supported for deletion")
     
     # Store in history
     event_history.append(event)
@@ -102,26 +148,16 @@ def event_processor(event: FileEvent) -> bool:
     
     # Log
     file_name = event.metadata.get('file_name', Path(event.file_path).name)
-    logger.info(f"Event: {event_type} - {file_name}")
+    logger.info(f"Event processed: {event_type} - {file_name}")
     
     return True
 
 
 def event_callback(event: FileEvent):
-    """Callback for direct event notification (hello/bye talel)."""
-    event_type = event.event_type
-    if isinstance(event_type, EventType):
-        event_type = event_type.value
-    
-    if event_type in ["created", "modified"]:
-        print("hello talel")
-    elif event_type == "deleted":
-        print("bye talel")
-    
-    # Store in history
-    event_history.append(event)
-    if len(event_history) > MAX_HISTORY:
-        event_history.pop(0)
+    """Callback for direct event notification."""
+    # Note: Processing and history tracking is now handled by the event_processor worker
+    # to avoid blocking the monitoring threads.
+    pass
 
 
 # ============================================================================
