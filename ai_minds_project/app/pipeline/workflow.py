@@ -30,10 +30,10 @@ log = logging.getLogger(__name__)
 
 # ── Single-file pipeline ─────────────────────────────────────
 
-def ingest_file(path: Path, session=None) -> int | None:
+def ingest_file(path: Path, session=None) -> dict:
     """Process one file through the full pipeline.
 
-    Returns the Postgres document id, or *None* if the file was skipped.
+    Returns dict with keys: status, doc_id, chunks, error
     """
     path = Path(path)
     own_session = session is None
@@ -45,13 +45,13 @@ def ingest_file(path: Path, session=None) -> int | None:
         existing = session.query(pg.Document).filter_by(file_path=str(path.resolve())).first()
         if existing:
             log.info("Skipping (already stored): %s", path.name)
-            return existing.id
+            return {"status": "skipped", "doc_id": existing.id, "reason": "already_exists"}
 
         # 1 – Ingest raw content
         text, meta = ingest(path)
         if not text.strip():
             log.warning("Empty content from %s — skipping", path.name)
-            return None
+            return {"status": "skipped", "reason": "empty_content"}
         rdb.log_event("ingest", {"file": path.name, "modality": meta["modality"]})
 
         # 2 – Chunk
@@ -113,12 +113,17 @@ def ingest_file(path: Path, session=None) -> int | None:
         rdb.log_event("qdrant_upsert", {"file": path.name, "n_points": len(points)})
 
         log.info("Ingested %s → doc_id=%d, %d chunks", path.name, doc.id, len(chunks))
-        return doc.id
+        return {
+            "status": "success",
+            "doc_id": doc.id,
+            "chunks": len(chunks),
+            "file_name": path.name
+        }
 
-    except Exception:
+    except Exception as e:
         log.exception("Failed to ingest %s", path.name)
         session.rollback()
-        return None
+        return {"status": "error", "error": str(e), "file_name": path.name}
     finally:
         if own_session:
             session.close()
@@ -154,11 +159,13 @@ def ingest_directory(
 
     for path in files:
         result = ingest_file(path, session=session)
-        if result is None:
-            failed += 1
-        else:
-            # Check if it was a skip or new ingest by checking if doc already existed
+        status = result.get("status")
+        if status == "success":
             ingested += 1
+        elif status == "skipped":
+            skipped += 1
+        else:
+            failed += 1
 
     session.close()
 
@@ -176,6 +183,7 @@ def ingest_directory(
         "directory": str(directory),
         "total_files": len(files),
         "ingested": ingested,
+        "skipped": skipped,
         "failed": failed,
         "graph_built": graph_built,
     }

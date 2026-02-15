@@ -10,6 +10,8 @@ from pathlib import Path
 from typing import List, Optional, Dict, Any
 from contextlib import asynccontextmanager
 
+import httpx
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -35,6 +37,10 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Backend API configuration
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
+BACKEND_TIMEOUT = 30.0
 
 
 # ============================================================================
@@ -83,40 +89,91 @@ event_history: List[FileEvent] = []
 MAX_HISTORY = 1000
 
 
+def call_backend_api(method: str, endpoint: str, **kwargs) -> Optional[Dict]:
+    """Make a synchronous call to the backend API."""
+    url = f"{BACKEND_URL}{endpoint}"
+    try:
+        with httpx.Client(timeout=BACKEND_TIMEOUT) as client:
+            if method == "POST":
+                response = client.post(url, **kwargs)
+            elif method == "DELETE":
+                response = client.delete(url, **kwargs)
+            else:
+                logger.error(f"Unsupported HTTP method: {method}")
+                return None
+            
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPStatusError as e:
+        logger.error(f"Backend API HTTP error ({method} {url}): {e.response.status_code} - {e.response.text}")
+        return None
+    except httpx.HTTPError as e:
+        logger.error(f"Backend API connection error ({method} {url}): {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error calling backend: {e}")
+        return None
+
+
 def event_processor(event: FileEvent) -> bool:
-    """Process file events - log and store in history."""
-    # Print hello/bye talel
+    """Process file events - communicate with backend API."""
     event_type = event.event_type
     if isinstance(event_type, EventType):
         event_type = event_type.value
     
+    file_path = event.file_path
+    file_name = event.metadata.get('file_name', Path(file_path).name)
+    
+    # Handle file events by calling backend API
     if event_type in ["created", "modified"]:
-        print("hello talel")
+        logger.info(f"📥 File {event_type}: {file_name} -> Sending to backend for ingestion")
+        
+        result = call_backend_api(
+            "POST",
+            "/api/files/ingest",
+            params={"file_path": file_path}
+        )
+        
+        if result:
+            logger.info(f"✅ Backend ingested {file_name}: doc_id={result.get('doc_id')}")
+        else:
+            logger.error(f"❌ Failed to ingest {file_name}")
+            
     elif event_type == "deleted":
-        print("bye talel")
+        logger.info(f"🗑️ File deleted: {file_name} -> Sending to backend for cleanup")
+        
+        result = call_backend_api(
+            "DELETE",
+            "/api/files",
+            params={"file_path": file_path}
+        )
+        
+        if result:
+            logger.info(f"✅ Backend cleaned up {file_name}: {result.get('vectors_deleted', 0)} vectors removed")
+        else:
+            logger.error(f"❌ Failed to cleanup {file_name}")
     
     # Store in history
     event_history.append(event)
     if len(event_history) > MAX_HISTORY:
         event_history.pop(0)
     
-    # Log
-    file_name = event.metadata.get('file_name', Path(event.file_path).name)
-    logger.info(f"Event: {event_type} - {file_name}")
-    
     return True
 
 
 def event_callback(event: FileEvent):
-    """Callback for direct event notification (hello/bye talel)."""
+    """Callback for direct event notification."""
     event_type = event.event_type
     if isinstance(event_type, EventType):
         event_type = event_type.value
     
+    file_name = event.metadata.get('file_name', Path(event.file_path).name)
+    
+    # Immediate console output for user visibility
     if event_type in ["created", "modified"]:
-        print("hello talel")
+        print(f"📁 FILE EVENT: {event_type.upper()} -> {file_name}")
     elif event_type == "deleted":
-        print("bye talel")
+        print(f"🗑️ FILE EVENT: DELETED -> {file_name}")
     
     # Store in history
     event_history.append(event)

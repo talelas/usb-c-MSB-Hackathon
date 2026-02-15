@@ -1,0 +1,646 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "file_name": "ai_foundations.md",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\ai_foundations.md",
+      "modality": "text",
+      "keywords": [
+        "Machine Learning",
+        "Artificial Intelligence",
+        "Deep Learning",
+        "Natural Language Processing",
+        "Computer Vision"
+      ],
+      "summary": "Artificial Intelligence (AI) is a transformative tech that encompasses machine learning, deep learning, and more."
+    },
+    {
+      "id": 2,
+      "file_name": "41467_2023_Article_42238.pdf",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\41467_2023_Article_42238.pdf",
+      "modality": "pdf",
+      "keywords": [
+        "sharks",
+        "evolution",
+        "rate",
+        "shark",
+        "genetics"
+      ],
+      "summary": "Sharks have low cancer rates and evolution rates, possibly due to a slow nuclear mutation rate."
+    },
+    {
+      "id": 3,
+      "file_name": "41598_2023_Article_35056.pdf",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\41598_2023_Article_35056.pdf",
+      "modality": "pdf",
+      "keywords": [
+        "Pseudomonas aeruginosa",
+        "biofilm",
+        "variability",
+        "clinical isolates",
+        "multidrug resistance"
+      ],
+      "summary": "\"Genomic variability correlates with biofilm phenotypes in multidrug-resistant Pseudomonas aeruginosa strains.\""
+    },
+    {
+      "id": 4,
+      "file_name": "biology.jpg",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\biology.jpg",
+      "modality": "image",
+      "keywords": [
+        "Charles Darwin evolution idea scientific theory"
+      ],
+      "summary": "Infographic illustrating Charles Darwin's development of evolutionary theory from 1859 publication."
+    },
+    {
+      "id": 5,
+      "file_name": "ElevenLabs_2026-02-15T01_12_48_Daniel - Steady Broadcaster_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\ElevenLabs_2026-02-15T01_12_48_Daniel - Steady Broadcaster_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "modality": "audio",
+      "keywords": [
+        "mitochondria",
+        "endoplasmic reticulum",
+        "ribosome",
+        "homeostasis",
+        "meiosis"
+      ],
+      "summary": "Audio clip discusses mitochondria and related biological processes like endoplasmic reticulum, ribosomes, and homeostasis."
+    },
+    {
+      "id": 6,
+      "file_name": "ElevenLabs_2026-02-15T01_13_16_Daniel - Steady Broadcaster_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\ElevenLabs_2026-02-15T01_13_16_Daniel - Steady Broadcaster_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "modality": "audio",
+      "keywords": [
+        "genetics",
+        "molecular biology",
+        "DNA",
+        "RNA",
+        "chromosome"
+      ],
+      "summary": "\"Exploring genetics & molecular biology: DNA, RNA, chromosomes, gene expression, mutation, and more.\""
+    },
+    {
+      "id": 7,
+      "file_name": "ElevenLabs_2026-02-15T01_14_14_Daniel - Steady Broadcaster_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\ElevenLabs_2026-02-15T01_14_14_Daniel - Steady Broadcaster_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "modality": "audio",
+      "keywords": [
+        "bacteria",
+        "virus",
+        "pathogen",
+        "antibiotic",
+        "fermentation"
+      ],
+      "summary": "List of biological terms."
+    },
+    {
+      "id": 8,
+      "file_name": "Epigenetics.txt",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\Epigenetics.txt",
+      "modality": "text",
+      "keywords": [
+        "Epigenetics",
+        "gene activity",
+        "environmental factors",
+        "epigenetic changes",
+        "lifestyle choices"
+      ],
+      "summary": "Epigenetics: Gene activity changes influenced by environmental factors, affecting gene function through chemical markers, potentially passed to future generations."
+    },
+    {
+      "id": 9,
+      "file_name": "mitochindria.txt",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\mitochindria.txt",
+      "modality": "text",
+      "keywords": [
+        "Mitochondria",
+        "organelles",
+        "ATP",
+        "apoptosis",
+        "mitochondria"
+      ],
+      "summary": "Here is a summary of the text in 150 characters or less:\n\nMitochondria: organelles producing cell energy through their own DNA, playing key roles in apoptosis, signaling, and immune responses."
+    },
+    {
+      "id": 10,
+      "file_name": "neural plasticity.txt",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\neural plasticity.txt",
+      "modality": "text",
+      "keywords": [
+        "Neural plasticity",
+        "brain plasticity",
+        "learning",
+        "adaptation",
+        "injury"
+      ],
+      "summary": "Neural plasticity: brain's ability to reorganize itself through new connections, adapting to learning, injury & environment."
+    },
+    {
+      "id": 11,
+      "file_name": "nihms4832.pdf",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\nihms4832.pdf",
+      "modality": "pdf",
+      "keywords": [
+        "SKY/M",
+        "FISH",
+        "CGH Database",
+        "Genome Sequence",
+        "Chromosomal Aberrations"
+      ],
+      "summary": "Researchers create 2 databases linking chromosomal aberrations to genomes."
+    },
+    {
+      "id": 12,
+      "file_name": "OIP (1).jpg",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\OIP (1).jpg",
+      "modality": "image",
+      "keywords": [
+        "animal cell",
+        "cell membrane",
+        "mitochondria",
+        "nucleus",
+        "cytoplasm"
+      ],
+      "summary": "A detailed diagram illustrating an animal cell's structure and function, highlighting key components like the cell membrane, mitochondria, glycogen granules, and vacuoles."
+    },
+    {
+      "id": 13,
+      "file_name": "OIP (2).jpg",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\OIP (2).jpg",
+      "modality": "image",
+      "keywords": [
+        "Barlow microscope",
+        "optical microscope",
+        "compound microscope",
+        "eyepiece",
+        "lenses"
+      ],
+      "summary": "\"Compound microscope features include: sturdy base, eyepiece lens, objective lenses, stage for samples, and cover slips.\""
+    },
+    {
+      "id": 14,
+      "file_name": "OIP (3).jpg",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\OIP (3).jpg",
+      "modality": "image",
+      "keywords": [
+        "microscope",
+        "eyepiece",
+        "objective lens",
+        "microscopic",
+        "cell"
+      ],
+      "summary": "Microscope image of stained cell with various organelles."
+    },
+    {
+      "id": 15,
+      "file_name": "OIP.jpg",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\OIP.jpg",
+      "modality": "image",
+      "keywords": [
+        "cancer cell",
+        "DNA",
+        "strand",
+        "cell division",
+        "helix"
+      ],
+      "summary": "Cell interacts with DNA in a red, irregular shape, suggesting a division-like process."
+    },
+    {
+      "id": 16,
+      "file_name": "The Human Microbiome and Its Impact on Health.txt.txt",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\biology_dataset\\The Human Microbiome and Its Impact on Health.txt.txt",
+      "modality": "text",
+      "keywords": [
+        "human microbiome",
+        "gut",
+        "immune system",
+        "dysbiosis",
+        "microbiome"
+      ],
+      "summary": "The human microbiome, trillions of microorganisms living in & on the body, plays crucial roles in digestion, immune system regulation & overall health, but imbalance (dysbiosis) can lead to diseases like obesity & depression."
+    },
+    {
+      "id": 17,
+      "file_name": "cognitive_systems.txt",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\cognitive_systems.txt",
+      "modality": "text",
+      "keywords": [
+        "Artificial intelligence",
+        "machine learning",
+        "natural language processing"
+      ],
+      "summary": "Cognitive computing systems integrate AI, ML, & NLP to interact with humans intuitively, understanding context and nuance."
+    },
+    {
+      "id": 18,
+      "file_name": "heavy_doc_1.txt",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\heavy_text\\heavy_doc_1.txt",
+      "modality": "text",
+      "keywords": [
+        "system architecture",
+        "data pipelines",
+        "batch processing",
+        "indexing strategy",
+        "operational considerations"
+      ],
+      "summary": "Multiple sections of a documentation describe large-scale ingestion, covering system architecture, data pipelines, operational considerations, and quality checks."
+    },
+    {
+      "id": 19,
+      "file_name": "heavy_doc_2.txt",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\heavy_text\\heavy_doc_2.txt",
+      "modality": "text",
+      "keywords": [
+        "system architecture",
+        "batch processing",
+        "indexing strategy",
+        "operational considerations",
+        "quality checks"
+      ],
+      "summary": "This appears to be a repetitive and incomplete section of a document. It seems that the same information is being repeated with minor variations (e.g. Section 2-5 repeats most of the content)."
+    },
+    {
+      "id": 20,
+      "file_name": "heavy_doc_3.txt",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\heavy_text\\heavy_doc_3.txt",
+      "modality": "text",
+      "keywords": [
+        "system architecture",
+        "data pipelines",
+        "indexing strategy",
+        "quality checks",
+        "vector storage"
+      ],
+      "summary": "The document covers large-scale ingestion of data, including architecture, pipeline, operational and quality considerations."
+    },
+    {
+      "id": 21,
+      "file_name": "1716295747_262_226872_cars2025.jpg",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\kraheb_dataset\\1716295747_262_226872_cars2025.jpg",
+      "modality": "image",
+      "keywords": [
+        "sports car",
+        "minimalist",
+        "aerodynamic",
+        "Honda",
+        "design"
+      ],
+      "summary": "Image of a sleek, white sports car with aerodynamic design, prominent grille, and high-performance tires."
+    },
+    {
+      "id": 22,
+      "file_name": "autonomouscar.txt",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\kraheb_dataset\\autonomouscar.txt",
+      "modality": "text",
+      "keywords": [
+        "Autonomous",
+        "self",
+        "driving",
+        "technology",
+        "AI"
+      ],
+      "summary": "Autonomous cars use AI, cameras, radar & lidar to drive without human intervention, aiming to reduce accidents & improve traffic flow."
+    },
+    {
+      "id": 23,
+      "file_name": "classiccars.txt",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\kraheb_dataset\\classiccars.txt",
+      "modality": "text",
+      "keywords": [
+        "classic",
+        "cars",
+        "restoration",
+        "automotive history",
+        "authenticity"
+      ],
+      "summary": "Classic cars are treasured pieces of automotive history, valued for their unique designs & mechanical craftsmanship."
+    },
+    {
+      "id": 24,
+      "file_name": "electriccars.txt",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\kraheb_dataset\\electriccars.txt",
+      "modality": "text",
+      "keywords": [
+        "Electric cars",
+        "transportation",
+        "batteries",
+        "emissions",
+        "pollution"
+      ],
+      "summary": "Electric cars offer zero tailpipe emissions, reduced air pollution, & improved range thanks to advanced tech, making them a sustainable transportation option."
+    },
+    {
+      "id": 25,
+      "file_name": "ElevenLabs_2026-02-15T01_24_45_Daniel - Steady Broadcaster_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\kraheb_dataset\\ElevenLabs_2026-02-15T01_24_45_Daniel - Steady Broadcaster_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "modality": "audio",
+      "keywords": [
+        "hybrid",
+        "electric",
+        "fuel",
+        "efficiency",
+        "emissions"
+      ],
+      "summary": "Hybrid cars use both gas & electric motors for improved fuel efficiency & reduced emissions, ideal for various driving conditions."
+    },
+    {
+      "id": 26,
+      "file_name": "ElevenLabs_2026-02-15T01_25_12_Daniel - Steady Broadcaster_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\kraheb_dataset\\ElevenLabs_2026-02-15T01_25_12_Daniel - Steady Broadcaster_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "modality": "audio",
+      "keywords": [
+        "Sport utility vehicles",
+        "SUVs",
+        "off",
+        "road",
+        "spacious"
+      ],
+      "summary": "SUVs offer spacious interiors, high driving positions & off-road capabilities, making them suitable for families, cargo, and adventure enthusiasts."
+    },
+    {
+      "id": 27,
+      "file_name": "ElevenLabs_2026-02-15T01_25_23_Daniel - Steady Broadcaster_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\kraheb_dataset\\ElevenLabs_2026-02-15T01_25_23_Daniel - Steady Broadcaster_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "modality": "audio",
+      "keywords": [
+        "Luxury cars",
+        "comfort",
+        "performance",
+        "technology",
+        "sophistication"
+      ],
+      "summary": "Luxury cars prioritize comfort, performance, tech & premium materials for a refined driving experience with style and sophistication."
+    },
+    {
+      "id": 28,
+      "file_name": "ElevenLabs_2026-02-15T01_25_36_Daniel - Steady Broadcaster_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\kraheb_dataset\\ElevenLabs_2026-02-15T01_25_36_Daniel - Steady Broadcaster_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "modality": "audio",
+      "keywords": [
+        "Concept cars",
+        "futuristic",
+        "automotive",
+        "technology",
+        "trends"
+      ],
+      "summary": "Concept cars showcase future auto tech, features, & trends in experimental designs."
+    },
+    {
+      "id": 29,
+      "file_name": "OIP (1).jpg",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\kraheb_dataset\\OIP (1).jpg",
+      "modality": "image",
+      "keywords": [
+        "car",
+        "tires",
+        "rims",
+        "rubber",
+        "gripping"
+      ],
+      "summary": "Stack of 5 car tires with silver rims and black rubber tread on a white background."
+    },
+    {
+      "id": 30,
+      "file_name": "OIP.jpg",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\kraheb_dataset\\OIP.jpg",
+      "modality": "image",
+      "keywords": [
+        "Peugeot 208",
+        "futuristic",
+        "high",
+        "tech",
+        "aerodynamic"
+      ],
+      "summary": "Peugeot 208 in vibrant yellow, set against a futuristic background with sleek lines and green geometric shape."
+    },
+    {
+      "id": 31,
+      "file_name": "sportscar.txt",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\kraheb_dataset\\sportscar.txt",
+      "modality": "text",
+      "keywords": [
+        "Speed",
+        "precision",
+        "performance",
+        "design",
+        "craftsmanship"
+      ],
+      "summary": "Sports cars combine speed, precision, and design, offering a thrilling driving experience that's as much about emotion as transportation."
+    },
+    {
+      "id": 32,
+      "file_name": "test.jpg",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\media_only\\test.jpg",
+      "modality": "image",
+      "keywords": [
+        "ginger cat",
+        "orange coat",
+        "resting",
+        "sleeping",
+        "serene"
+      ],
+      "summary": "Image of a sleeping ginger cat on a wooden floor, exuding calmness and serenity."
+    },
+    {
+      "id": 33,
+      "file_name": "ElevenLabs_2026-02-15T01_37_16_Rachel_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\medical_demo_data\\ElevenLabs_2026-02-15T01_37_16_Rachel_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "modality": "audio",
+      "keywords": [
+        "cardiac",
+        "murmur",
+        "rhythm",
+        "lungs",
+        "discharge"
+      ],
+      "summary": "Patient cleared for discharge with normal cardiac and lung exam results."
+    },
+    {
+      "id": 34,
+      "file_name": "ElevenLabs_2026-02-15T01_37_58_Rachel_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\medical_demo_data\\ElevenLabs_2026-02-15T01_37_58_Rachel_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "modality": "audio",
+      "keywords": [
+        "systolic murmurs",
+        "grade 3",
+        "aortic stenosis",
+        "echocardiogram",
+        "consultation"
+      ],
+      "summary": "Patient has a suspected Grade 3 systolic murmur, likely due to aortic stenosis; echocardiogram recommended."
+    },
+    {
+      "id": 35,
+      "file_name": "ElevenLabs_2026-02-15T01_38_38_Rachel_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\medical_demo_data\\ElevenLabs_2026-02-15T01_38_38_Rachel_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "modality": "audio",
+      "keywords": [
+        "pneumonia",
+        "bacterial infection",
+        "fever",
+        "shortness of breath",
+        "x"
+      ],
+      "summary": "Patient 103 has bacterial pneumonia (shortness of breath & high fever), starts antibiotic treatment."
+    },
+    {
+      "id": 36,
+      "file_name": "ElevenLabs_2026-02-15T01_39_11_Rachel_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\medical_demo_data\\ElevenLabs_2026-02-15T01_39_11_Rachel_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "modality": "audio",
+      "keywords": [
+        "Patient",
+        "Atrial Fibrillation",
+        "Holter Monitor",
+        "Palpitations",
+        "EKG"
+      ],
+      "summary": "Patient 104 has irregular heartbeat, possible atrial fibrillation, and palpitations; ordered 24hr Holter Mon."
+    },
+    {
+      "id": 37,
+      "file_name": "ElevenLabs_2026-02-15T01_39_35_Rachel_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\medical_demo_data\\ElevenLabs_2026-02-15T01_39_35_Rachel_pre_sp100_s50_sb75_se0_b_m2.mp3",
+      "modality": "audio",
+      "keywords": [
+        "patient",
+        "incision",
+        "infection",
+        "breath",
+        "removed"
+      ],
+      "summary": "Patient 105's post-op check shows improving breath sounds & no infection, with possible drain removal tomorrow morning."
+    },
+    {
+      "id": 43,
+      "file_name": "manual_test.txt",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\manual_test.txt",
+      "modality": "text",
+      "keywords": [
+        "Quantum computing",
+        "superposition",
+        "entanglement",
+        "quantum gates",
+        "algorithms"
+      ],
+      "summary": "\"Quantum computing harnesses quantum mechanics to process info in multiple states (superposition), enabling applications like cryptography & optimization.\""
+    }
+  ],
+  "edges": [
+    {
+      "source": 1,
+      "target": 17,
+      "weight": 0.6,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 2,
+      "target": 6,
+      "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 5,
+      "target": 9,
+      "weight": 0.125,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 5,
+      "target": 12,
+      "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 6,
+      "target": 15,
+      "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 9,
+      "target": 12,
+      "weight": 0.125,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 13,
+      "target": 14,
+      "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 18,
+      "target": 19,
+      "weight": 0.6666666666666666,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 18,
+      "target": 20,
+      "weight": 0.42857142857142855,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 19,
+      "target": 20,
+      "weight": 0.42857142857142855,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 21,
+      "target": 30,
+      "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 21,
+      "target": 31,
+      "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 22,
+      "target": 27,
+      "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 22,
+      "target": 28,
+      "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 24,
+      "target": 25,
+      "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 27,
+      "target": 28,
+      "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 27,
+      "target": 31,
+      "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 28,
+      "target": 30,
+      "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    },
+    {
+      "source": 36,
+      "target": 37,
+      "weight": 0.1111111111111111,
+      "edge_type": "keyword"
+    }
+  ]
+}

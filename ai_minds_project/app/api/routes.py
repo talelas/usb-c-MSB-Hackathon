@@ -29,7 +29,7 @@ from app.graph.builder import build_all, load_all
 from app.graph import retrieval as graph_retrieval
 from app.llm import ollama_client as llm_client
 from app.llm.rag import answer as rag_answer, clear_history, get_history
-from app.pipeline.workflow import ingest_directory
+from app.pipeline.workflow import ingest_directory, ingest_file as pipeline_ingest_file
 
 log = logging.getLogger(__name__)
 
@@ -229,5 +229,90 @@ def rebuild_graphs():
             "semantic_nodes": _sem_graph.number_of_nodes(),
             "semantic_edges": _sem_graph.number_of_edges(),
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── File Management ──────────────────────────────────────────
+
+@router.post("/files/ingest")
+def ingest_single_file(file_path: str):
+    """Ingest a single file by path."""
+    from pathlib import Path
+    path = Path(file_path)
+    if not path.exists():
+        raise HTTPException(status_code=404, detail=f"File not found: {file_path}")
+    
+    result = pipeline_ingest_file(path)
+    
+    # Reload graphs if file was successfully ingested
+    if result.get("status") == "success":
+        global _kw_graph, _sem_graph
+        try:
+            _kw_graph, _sem_graph = load_all()
+        except Exception:
+            pass
+    
+    return result
+
+
+@router.delete("/files")
+def delete_file_from_system(file_path: str):
+    """Delete a file from the database and vector store (not from disk)."""
+    from pathlib import Path
+    
+    path = Path(file_path).resolve()
+    
+    try:
+        session = pg.get_session()
+        try:
+            # Find document by file path
+            doc = session.query(pg.Document).filter_by(file_path=str(path)).first()
+            
+            if not doc:
+                raise HTTPException(status_code=404, detail="File not found in database")
+            
+            doc_id = doc.id
+            
+            # Delete from Postgres (cascades to chunks)
+            session.delete(doc)
+            session.commit()
+            
+            # Delete from Qdrant
+            from app.db import qdrant_client as qdb
+            try:
+                client = qdb.get_client()
+                points = qdb.scroll_all()
+                ids_to_delete = [
+                    p.id for p in points 
+                    if p.payload and p.payload.get("doc_id") == doc_id
+                ]
+                if ids_to_delete:
+                    client.delete(
+                        collection_name=qdb.QDRANT_COLLECTION,
+                        points_selector=ids_to_delete
+                    )
+            except Exception as e:
+                log.error(f"Failed to delete from Qdrant: {e}")
+            
+            # Reload graphs
+            global _kw_graph, _sem_graph
+            try:
+                _kw_graph, _sem_graph = build_all()
+            except Exception:
+                pass
+            
+            return {
+                "status": "deleted",
+                "doc_id": doc_id,
+                "file_path": str(path),
+                "vectors_deleted": len(ids_to_delete) if ids_to_delete else 0
+            }
+                
+        finally:
+            session.close()
+            
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
