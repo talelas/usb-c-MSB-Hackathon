@@ -4,6 +4,7 @@ import TopBar from "./components/TopBar";
 import LeftSidebar from "./components/LeftSidebar";
 import RightSidebar from "./components/RightSidebar";
 import ChatPanel from "./components/ChatPanel";
+import IngestPanel from "./components/IngestPanel";
 import SearchBar from "./components/SearchBar";
 import StatusBar from "./components/StatusBar";
 import { fetchDocuments, searchDocuments } from "./data/api";
@@ -20,7 +21,7 @@ export default function App() {
   const [openTabs, setOpenTabs] = useState([]);
   const [activeTabId, setActiveTabId] = useState(null);
   const [showRight, setShowRight] = useState(false);
-  const [rightPanelMode, setRightPanelMode] = useState("document"); // "document" or "chat"
+  const [rightPanelMode, setRightPanelMode] = useState("document"); // "document", "chat", or "ingest"
   const [zoom, setZoom] = useState(1);
   const [graphNodes, setGraphNodes] = useState([]);
   const [graphLinks, setGraphLinks] = useState([]);
@@ -98,6 +99,26 @@ export default function App() {
     };
   }, []);
 
+  // Function to reload documents (called after ingestion)
+  const reloadDocuments = useCallback(async () => {
+    console.log('[App] Reloading documents after ingestion...');
+    setLoading(true);
+    setError(null);
+    try {
+      const docs = await fetchDocuments();
+      const { nodes, links, fileTree: tree } = buildGraphData(docs || []);
+      setGraphNodes(nodes);
+      setGraphLinks(links);
+      setFileTree(tree);
+      console.log('[App] Documents reloaded successfully');
+    } catch (err) {
+      setError(err.message || "Failed to reload documents");
+      console.error('[App] Failed to reload documents:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // ── Handlers ──
   const handleSelectNode = useCallback((node) => {
     setSelectedNode(node);
@@ -158,6 +179,15 @@ export default function App() {
     } else {
       setShowRight(true);
       setRightPanelMode("chat");
+    }
+  }, [showRight, rightPanelMode]);
+
+  const handleToggleIngest = useCallback(() => {
+    if (showRight && rightPanelMode === "ingest") {
+      setShowRight(false);
+    } else {
+      setShowRight(true);
+      setRightPanelMode("ingest");
     }
   }, [showRight, rightPanelMode]);
 
@@ -253,9 +283,22 @@ export default function App() {
           >
             💬
           </button>
+
+          {/* Ingest toggle button */}
+          <button
+            style={{
+              ...styles.ingestToggle,
+              background: showRight && rightPanelMode === "ingest" ? COLORS.accentGreen : COLORS.bgPanel,
+              color: showRight && rightPanelMode === "ingest" ? COLORS.bg : COLORS.text,
+            }}
+            onClick={handleToggleIngest}
+            title="Ingest Documents"
+          >
+            ➕
+          </button>
         </div>
 
-        {/* Right Sidebar - Document or Chat */}
+        {/* Right Sidebar - Document, Chat, or Ingest */}
         {showRight && (
           <>
             {rightPanelMode === "document" ? (
@@ -271,10 +314,16 @@ export default function App() {
                 searchError={searchError}
                 width={RIGHT_WIDTH}
               />
-            ) : (
+            ) : rightPanelMode === "chat" ? (
               <ChatPanel
                 sessionId="default"
                 onClose={handleCloseRight}
+                width={RIGHT_WIDTH}
+              />
+            ) : (
+              <IngestPanel
+                onClose={handleCloseRight}
+                onIngestComplete={reloadDocuments}
                 width={RIGHT_WIDTH}
               />
             )}
@@ -358,6 +407,25 @@ const styles = {
     justifyContent: "center",
     transition: "all 0.2s",
     boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+    zIndex: 20,
+  },
+  ingestToggle: {
+    position: "absolute",
+    bottom: 90,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: "50%",
+    border: `1px solid ${COLORS.border}`,
+    backdropFilter: "blur(16px)",
+    fontSize: 28,
+    fontWeight: "bold",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "all 0.2s",
+    boxShadow: "0 6px 16px rgba(0,0,0,0.4)",
     zIndex: 20,
   },
 };

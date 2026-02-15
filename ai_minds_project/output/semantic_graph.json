@@ -525,6 +525,34 @@
         "algorithms"
       ],
       "summary": "\"Quantum computing harnesses quantum mechanics to process info in multiple states (superposition), enabling applications like cryptography & optimization.\""
+    },
+    {
+      "id": 45,
+      "file_name": "neural_networks.txt",
+      "file_path": "C:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\neural_networks.txt",
+      "modality": "text",
+      "keywords": [
+        "Computational",
+        "models",
+        "neurons",
+        "backpropagation",
+        "deep"
+      ],
+      "summary": "\"Neural networks mimic biology, consisting of layered nodes. Deep learning & backpropagation train them.\""
+    },
+    {
+      "id": 46,
+      "file_name": "cat.jpg",
+      "file_path": "C:\\Users\\User\\Downloads\\Nouveau dossier\\cat.jpg",
+      "modality": "image",
+      "keywords": [
+        "orange",
+        "tabby",
+        "cat",
+        "eyes",
+        "fur"
+      ],
+      "summary": "Image of an orange tabby cat with pink nose, white stripes, and pointed ears against a blurred green background."
     }
   ],
   "edges": [
@@ -604,6 +632,12 @@
       "source": 27,
       "target": 28,
       "weight": 0.5862649175739537,
+      "edge_type": "semantic"
+    },
+    {
+      "source": 32,
+      "target": 46,
+      "weight": 0.6042385310150923,
       "edge_type": "semantic"
     },
     {
