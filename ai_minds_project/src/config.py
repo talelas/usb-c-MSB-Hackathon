@@ -24,6 +24,11 @@ PHOTO_INGESTION_URL = "http://127.0.0.1:5000/analyze"
 PHOTO_INGESTION_PROMPT = "Describe this image in detail."
 PHOTO_INGESTION_TIMEOUT = 300  # Increased for CPU inference (can exceed 180 seconds)
 
+# Media text caching (use captions/transcripts from JSON to avoid slow inference)
+USE_MEDIA_TEXT_CACHE = True
+GENERATE_MEDIA_TEXT = False  # Set True only when running on faster hardware
+MEDIA_TEXT_CACHE_FILE = OUTPUT_DIR / "media_text_cache.json"
+
 # Audio transcription (faster-whisper)
 try:
     import torch

@@ -68,6 +68,15 @@ Outputs are written to:
 - ai_minds_project/output/metadata_embeddings.json
 - ai_minds_project/output/metadata_embeddings.csv
 
+## 3b) Run a single file
+
+Process one file and update outputs:
+
+```powershell
+cd ai_minds_project
+..\.venv\Scripts\python.exe run_single.py "data/raw/media_only/test.jpg"
+```
+
 ## 4) (Optional) Qdrant demo
 
 If Qdrant is running locally, you can store and query media embeddings:
@@ -75,6 +84,15 @@ If Qdrant is running locally, you can store and query media embeddings:
 ```powershell
 cd ai_minds_project
 ..\.venv\Scripts\python.exe qdrant_media_demo.py
+```
+
+## 4b) Qdrant similarity search
+
+Upsert embeddings and search by query text:
+
+```powershell
+cd ai_minds_project
+..\.venv\Scripts\python.exe qdrant_search.py --upsert --query "ginger cat on floor"
 ```
 
 ## Troubleshooting

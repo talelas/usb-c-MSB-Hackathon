@@ -75,3 +75,80 @@ Artificial Intelligence, Machine Learning, Deep Learning, Natural Language Proce
 26,test.mp3,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\media_only\test.mp3,audio,371084,2026-02-14 18:03:02.734765,.mp3,,,Test audio file (test.mp3) available.,"Here are the 5 extracted keywords in a comma-separated format:
 
 Audio, file, test.mp3",1,384,2026-02-14T22:16:59.843293
+27,cognitive_systems.txt,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\cognitive_systems.txt,text,1302,2026-02-14 18:46:25.344573,.txt,,,"""Cognitive computing systems integrate AI, ML, and NLP for intuitive human interaction, enabling context-aware understanding and evidence-based insights across various industries.""","Here are the 5 important keywords extracted from the text in a comma-separated format:
+
+Artificial intelligence, machine learning, natural language processing, cognitive systems, reasoning",3,384,2026-02-15T00:47:35.995295
+28,test_sample.txt,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\test_sample.txt,text,474,2026-02-14 18:56:26.883240,.txt,,,AI Minds Cognitive Memory System: processes text and multimedia files for embedding using HuggingFace models.,"Here are 5 important keywords extracted from the text in a comma-separated list:
+
+AI, Cognitive, Memory, System, Models",1,384,2026-02-15T00:47:54.745142
+29,heavy_doc_1.txt,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\heavy_text\heavy_doc_1.txt,text,132993,2026-02-14 20:13:34.772671,.txt,,,"This appears to be a repetitive list of sections with similar content. Here's a summary in 150 characters or less:
+
+Document outlines system architecture, data pipelines, logging, quality checks, and ","Here are the 5 important keywords extracted from the text:
+
+system architecture, batch processing, data pipelines",286,384,2026-02-15T00:48:27.058543
+30,heavy_doc_2.txt,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\heavy_text\heavy_doc_2.txt,text,132993,2026-02-14 20:13:34.773677,.txt,,,"Document outlines system architecture, data pipelines, logging, monitoring, quality checks, and operational considerations.","Here are 5 important keywords extracted from the text in a comma-separated list:
+
+system architecture, data pipelines, batch processing, indexing strategy, semantic search",286,384,2026-02-15T00:48:57.227319
+31,heavy_doc_3.txt,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\heavy_text\heavy_doc_3.txt,text,132993,2026-02-14 20:13:34.774675,.txt,,,"This document covers large-scale ingestion architecture, data pipelines, operational considerations, quality checks, and indexing strategies.","Here are the 5 important keywords extracted from the text in a comma-separated format:
+
+system architecture, data pipelines, batch processing, indexing strategy, semantic search",286,384,2026-02-15T00:49:27.583172
+32,ai_foundations.md,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\ai_foundations.md,text,1486,2026-02-14 18:46:25.457231,.md,,,"Artificial Intelligence (AI) is a transformative tech that includes machine learning, deep learning, NLP, & computer vision.","Here are 5 important keywords extracted from the text in a comma-separated list:
+
+Artificial Intelligence, Machine Learning, Deep Learning, Natural Language Processing, Computer Vision",4,384,2026-02-15T00:49:53.214256
+33,test.jpg,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\test.jpg,image,15617,2026-02-14 17:31:44,.jpg,,,"No summary available. This appears to be an image description, not a text to summarize.","image, file, photo, picture, JPEG",1,384,2026-02-15T00:55:11.245673
+34,test4.jpg,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\test4.jpg,image,83550,2026-02-14 18:44:18,.jpg,,,"No text provided to summarize. The given information is an image file name (""test4.jpg"").","image, file, test4, jpg",1,384,2026-02-15T01:00:36.364209
+35,test.mp3,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\test.mp3,audio,371084,2026-02-14 18:03:02.734765,.mp3,,"In a quiet village where the sky brushes the fields in hues of gold, young Mia discovered a map leading to forgotten treasures. Little did she know, her cat whiskers had a secret. He was the guardian ",Young Mia finds an ancient map and embarks on a journey to hidden treasures and discovers her fate is intertwined with that of her enigmatic cat.,"Here are 5 important keywords extracted from the text:
+
+map, treasure, cat, destiny, village",1,384,2026-02-15T01:01:24.974026
+<<<<<<< HEAD
+36,cognitive_systems.txt,C:\Users\User\My Files\Docs\Hackathon\AI MINDS SMU\usb-c-MSB-Hackathon\ai_minds_project\data\raw\cognitive_systems.txt,text,1302,2026-02-15 02:34:01.278957,.txt,,,"Cognitive Computing Systems
+
+Cognitive computing systems integrate artificial intelligence, machine learning, and natural language processing to inter",,3,384,2026-02-15T03:04:22.300075
+37,test_sample.txt,C:\Users\User\My Files\Docs\Hackathon\AI MINDS SMU\usb-c-MSB-Hackathon\ai_minds_project\data\raw\test_sample.txt,text,474,2026-02-15 02:34:01.285956,.txt,,,"
+        AI Minds Cognitive Memory System
+        
+        This is a test document for the memory ingestion system.
+        It demonstrates how text f",,1,384,2026-02-15T03:04:22.347291
+38,heavy_doc_1.txt,C:\Users\User\My Files\Docs\Hackathon\AI MINDS SMU\usb-c-MSB-Hackathon\ai_minds_project\data\raw\heavy_text\heavy_doc_1.txt,text,132993,2026-02-15 02:34:01.279958,.txt,,,"Section 1-1: This document describes system architecture, data pipelines, and batch processing steps for large scale ingestion.
+Section 1-2: It includ",,286,384,2026-02-15T03:04:22.617344
+39,heavy_doc_2.txt,C:\Users\User\My Files\Docs\Hackathon\AI MINDS SMU\usb-c-MSB-Hackathon\ai_minds_project\data\raw\heavy_text\heavy_doc_2.txt,text,132993,2026-02-15 02:34:01.279958,.txt,,,"Section 2-1: This document describes system architecture, data pipelines, and batch processing steps for large scale ingestion.
+Section 2-2: It includ",,286,384,2026-02-15T03:04:22.830810
+40,heavy_doc_3.txt,C:\Users\User\My Files\Docs\Hackathon\AI MINDS SMU\usb-c-MSB-Hackathon\ai_minds_project\data\raw\heavy_text\heavy_doc_3.txt,text,132993,2026-02-15 02:34:01.280958,.txt,,,"Section 3-1: This document describes system architecture, data pipelines, and batch processing steps for large scale ingestion.
+Section 3-2: It includ",,286,384,2026-02-15T03:04:23.045964
+41,ai_foundations.md,C:\Users\User\My Files\Docs\Hackathon\AI MINDS SMU\usb-c-MSB-Hackathon\ai_minds_project\data\raw\ai_foundations.md,text,1486,2026-02-15 02:34:01.278957,.md,,,"# Artificial Intelligence Foundations
+
+Artificial Intelligence (AI) represents one of the most transformative technologies of our time. It encompasses",,4,384,2026-02-15T03:04:23.054104
+42,test4.jpg,C:\Users\User\My Files\Docs\Hackathon\AI MINDS SMU\usb-c-MSB-Hackathon\ai_minds_project\data\raw\test4.jpg,image,83550,2026-02-15 02:34:01.284956,.jpg,,,[Image: test4.jpg] - Image file,,1,384,2026-02-15T03:04:23.076938
+43,test.jpg,C:\Users\User\My Files\Docs\Hackathon\AI MINDS SMU\usb-c-MSB-Hackathon\ai_minds_project\data\raw\media_only\test.jpg,image,15617,2026-02-15 02:34:01.281957,.jpg,,,[Image: test.jpg] - Image file,,1,384,2026-02-15T03:04:23.083186
+44,test.mp3,C:\Users\User\My Files\Docs\Hackathon\AI MINDS SMU\usb-c-MSB-Hackathon\ai_minds_project\data\raw\test.mp3,audio,371084,2026-02-15 02:34:01.284956,.mp3,,,[Audio: test.mp3] - Audio file,,1,384,2026-02-15T03:04:23.137512
+=======
+36,cognitive_systems.txt,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\cognitive_systems.txt,text,1302,2026-02-14 18:46:25.344573,.txt,,,"Cognitive computing systems integrate AI, ML & NLP to understand context and nuance, providing insights in various industries.","Here are 5 important keywords extracted from the text in a comma-separated list:
+
+Artificial Intelligence, Machine Learning, Natural Language Processing, Context, Insight.",3,384,2026-02-15T01:43:17.649123
+37,test_sample.txt,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\test_sample.txt,text,474,2026-02-14 18:56:26.883240,.txt,,,"""AI Minds Cognitive Memory System: processes text & image files for embedding, utilizing HuggingFace models.""","Here are 5 important keywords from the text in a comma-separated list:
+
+AI, Cognitive, Memory, System, Embeddings",1,384,2026-02-15T01:43:38.536141
+38,heavy_doc_1.txt,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\heavy_text\heavy_doc_1.txt,text,132993,2026-02-14 20:13:34.772671,.txt,,,"Document covers large-scale ingestion architecture, data pipelines, indexing strategies, and quality checks.","Here are the 5 important keywords extracted from the text in a comma-separated format:
+
+system architecture, data pipelines, batch processing, indexing strategy, operational considerations",286,384,2026-02-15T01:44:10.308433
+39,heavy_doc_2.txt,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\heavy_text\heavy_doc_2.txt,text,132993,2026-02-14 20:13:34.773677,.txt,,,"Document covers system arch., data pipelines, & operational considerations for large-scale ingestion.","Here are 5 important keywords extracted from the text in a comma-separated format:
+
+system architecture, data pipelines, batch processing, indexing strategy, monitoring",286,384,2026-02-15T01:44:45.581309
+40,heavy_doc_3.txt,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\heavy_text\heavy_doc_3.txt,text,132993,2026-02-14 20:13:34.774675,.txt,,,"This document covers large-scale data ingestion, including system architecture, data pipelines, and quality checks.","Here are 5 important keywords extracted from the text in a comma-separated format:
+
+system architecture, data pipelines, batch processing, indexing strategy, semantic search",286,384,2026-02-15T01:45:18.034385
+41,ai_foundations.md,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\ai_foundations.md,text,1486,2026-02-14 18:46:25.457231,.md,,,"Artificial Intelligence encompasses machine learning, deep learning, natural language processing, and computer vision, enabling computers to learn from data without explicit programming.","Here are 5 important keywords extracted from the text in comma-separated form:
+
+Artificial Intelligence, Machine Learning, Deep Learning, Natural Language Processing, Computer Vision",4,384,2026-02-15T01:45:44.416326
+42,test4.jpg,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\test4.jpg,image,83550,2026-02-14 18:44:18,.jpg,,,No text provided to summarize. Only an image file reference is given.,"Here are the 5 important keywords extracted from the text in a comma-separated format:
+
+image, file, test4.jpg",1,384,2026-02-15T01:45:56.469849
+43,test.jpg,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\media_only\test.jpg,image,15617,2026-02-14 17:31:44,.jpg,"The image shows a ginger cat lying on a wooden floor. The cat has a fluffy, orange coat with white stripes on its face and paws. Its eyes are closed, and it appears to be resting or sleeping. The cat'",,"A ginger cat rests on a wooden floor, eyes closed, ears perked up, and paws stretched out, exuding a sense of calm serenity.","Here are 5 important keywords extracted from the text:
+
+ginger cat, orange coat, relaxed posture, wooden floor, hardwood",2,384,2026-02-15T01:46:20.865807
+44,test.mp3,C:\Users\HP\OneDrive\Documents\lang chain\usb-c-MSB-Hackathon\ai_minds_project\data\raw\test.mp3,audio,371084,2026-02-14 18:03:02.734765,.mp3,,,Test audio file available.,audio file,1,384,2026-02-15T01:46:29.260218
+45,test.mp3,data\raw\test.mp3,audio,371084,2026-02-14 18:03:02.734765,.mp3,,,"Audio file ""test.mp3"" available.","Audio, file, mp3, audio, test",1,384,2026-02-15T02:29:32.878914
+46,test.mp3,data\raw\test.mp3,audio,371084,2026-02-14 18:03:02.734765,.mp3,,"In a quiet village where the sky brushes the fields in hues of gold, young Mia discovered a map leading to forgotten treasures. Little did she know, her cat whiskers had a secret. He was the guardian ","Young Mia finds a map in her village that leads to hidden treasures, accompanied by her mysterious and wise cat companion.","Here are 5 important keywords extracted from the text in a comma-separated list:
+
+map, treasure, destiny, village, secrets",1,384,2026-02-15T02:30:59.151183
+>>>>>>> 50da28a15386594caf77fd02bbbb8e063a56da7e

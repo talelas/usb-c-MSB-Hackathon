@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from config import DATA_DIR, OUTPUT_DIR, METADATA_OUTPUT_FILE, METADATA_CSV_FILE
 from config import EMBEDDING_MODEL, OLLAMA_API_URL, OLLAMA_MODEL
-from config import PHOTO_INGESTION_URL, AUDIO_TRANSCRIBE_ENABLED
+from config import PHOTO_INGESTION_URL, AUDIO_TRANSCRIBE_ENABLED, USE_MEDIA_TEXT_CACHE, GENERATE_MEDIA_TEXT
 from ingestors.ingestor import IngestorFactory
 from embedders.embedder import EmbeddingPipeline
 from storage.storage import MetadataStorage, MemoryIndex
@@ -42,6 +42,8 @@ class MemoryProcessor:
         else:
             print("⚠ Image captions disabled (PHOTO_INGESTION_URL not set)")
         print(f"✓ Audio transcription enabled: {AUDIO_TRANSCRIBE_ENABLED}")
+        print(f"✓ Media text cache enabled: {USE_MEDIA_TEXT_CACHE}")
+        print(f"✓ Media text generation enabled: {GENERATE_MEDIA_TEXT}")
         print("✓ MemoryProcessor initialized\n")
     
     def process_file(self, file_path: str) -> bool:
@@ -161,17 +163,30 @@ class MemoryProcessor:
         print(f"Output Directory: {OUTPUT_DIR}")
         print('='*60 + "\n")
 
+    def process_single_file(self, file_path: str) -> bool:
+        """Process a single file and save outputs."""
+        ok = self.process_file(file_path)
+        if not ok:
+            print("✗ Single file processing failed")
+            return False
+
+        self.storage.save_json()
+        self.storage.save_csv()
+        self.storage.export_embeddings_only(str(OUTPUT_DIR / "embeddings_only.json"))
+        self.storage.print_summary()
+        return True
+
 
 def main():
     """Main entry point"""
-    
+
     print("\n" + "="*60)
     print("🧠 AI MINDS - Cognitive Memory System")
     print("File Ingestion & Embedding Pipeline")
     print("="*60 + "\n")
-    
+
     processor = MemoryProcessor()
-    
+
     # Process all files in data/raw directory
     processor.process_directory(DATA_DIR / "raw")
 
