@@ -1,0 +1,5 @@
+doc_id,file_name,modality,file_size_bytes,file_timestamp,file_extension,summary,keywords,num_chunks,embedding_dimension,processed_timestamp
+1,test.txt,text,1000,2026-02-14,.txt,This is a test summary of the document.,"test, sample, embedding",2,384,2026-02-14T18:41:48.226523
+2,test.txt,text,1000,2026-02-14,.txt,This is a test summary of the document.,"test, sample, embedding",2,384,2026-02-14T18:42:11.047430
+3,test.txt,text,1000,2026-02-14,.txt,This is a test summary of the document.,"test, sample, embedding",2,384,2026-02-14T18:46:00.185152
+4,test.txt,text,1000,2026-02-14,.txt,This is a test summary of the document.,"test, sample, embedding",2,384,2026-02-14T18:56:48.523204

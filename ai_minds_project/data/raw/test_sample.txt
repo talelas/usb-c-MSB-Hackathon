@@ -1,0 +1,15 @@
+
+        AI Minds Cognitive Memory System
+        
+        This is a test document for the memory ingestion system.
+        It demonstrates how text files are processed for embedding.
+        
+        The system supports multiple file types:
+        - Text files (.txt)
+        - Markdown (.md)
+        - PDF documents
+        - Images with metadata
+        - Audio files
+        
+        Each file is converted to embeddings using HuggingFace models.
+        

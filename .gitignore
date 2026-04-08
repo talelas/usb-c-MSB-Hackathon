@@ -1,6 +1,50 @@
 # Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+.venv/
 venv/
-**/__pycache__/
+env/
+ENV/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Environment variables
+.env
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Project specific
+fastembed_cache/
+output/
+*_cache/
+transcription.txt
+*.log
+
+# Large data files / Models
+*.onnx
+*.pt
+*.pth
+*.bin
+# pycache
+
+# Byte-compiled / optimized / DLL files
+__pycache__/    
+*.py[cod]
+
+
+# Python
+venv/
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
@@ -10,6 +54,10 @@ venv/
 *.egg-info/
 dist/
 build/
+
+
+file_handling/__pycache__/
+file_handling/tmp/
 
 # Environment
 .env
@@ -27,17 +75,26 @@ build/
 Thumbs.db
 desktop.ini
 
+
 # Node
 node_modules/
 
 # Data (add your input files locally — not tracked in git)
 backend/data/
+
+# Testing
+test_data/
+bulk_test/
+test_types/
+
+# Data and Logs
 data/
 logs/
 *.log
 *.db
 *.sqlite
 *.sqlite3
+
 
 # Output (auto-generated graph exports — not tracked in git)
 backend/output/
@@ -62,3 +119,5 @@ token.json
 *.tmp
 temp/
 tmp/
+
+

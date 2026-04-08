@@ -1,0 +1,44 @@
+{
+  "items": {
+    "C:\\Users\\HP\\OneDrive\\Documents\\lang chain\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\media_only\\test.jpg": {
+      "file_name": "test.jpg",
+      "file_path": "C:\\Users\\HP\\OneDrive\\Documents\\lang chain\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\media_only\\test.jpg",
+      "file_size_bytes": 15617,
+      "file_mtime": 1771086704.0,
+      "caption": "The image shows a ginger cat lying on a wooden floor. The cat has a fluffy, orange coat with white stripes on its face and paws. Its eyes are closed, and it appears to be resting or sleeping. The cat's ears are perked up, and it has a relaxed posture with its front paws stretched out in front of it. The wooden floor has a light brown color and a smooth texture, indicating it might be a laminate or hardwood type. The overall scene is calm and serene, with the cat appearing to be in a peaceful state.",
+      "transcript": ""
+    },
+<<<<<<< HEAD
+    "c:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\test4.jpg": {
+      "file_name": "test4.jpg",
+      "file_path": "c:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\test4.jpg",
+      "file_size_bytes": 83550,
+      "file_mtime": 1771119241.2849555,
+      "caption": "The image is a screenshot of a discussion thread on a forum or social media platform. The thread is titled \"Is 16GB DDR5 ENOUGH FOR 1080p?\" and it appears to be a question about the recommended amount of DDR5 RAM for a gaming PC with a Ryzen 7 7600 and a Radeon RX 480 8GB graphics card. The thread is in Chinese.\n\nHere is a detailed description of the content:\n\n1. **Title and Question**: The thread starts with the question \"Is 16GB DDR5 ENOUGH FOR 1080p?\" This indicates that the user is considering building a gaming PC and is wondering if 16GB of DDR5 RAM is sufficient for playing 1080p games.\n\n2. **User Comments**:\n   - **Ephemeral-Echo**: The first comment is from a user named Ephemeral-Echo. They state, \"16GB DDR5 is to be avoided. What is available is very slow and still not worth your money, costing more than half of good 32GB DDR5 ram (6000 cl30).\" This comment suggests that 16GB DDR5 is not recommended due to its slow performance and high cost compared to 32GB DDR5.\n\n3. **Reh Rex04**: The second comment is from a user named Reh Rex04. They mention, \"Actually in my country, there are 6000Mhz cl30 16GB kits.\" This indicates that the user is referring to DDR5 RAM that is available in their country, specifically a 6000Mhz cl30 16GB kit.\n\n4. **User Comments on Reh Rex04's Comment**:\n   - **Ephemeral-Echo**: The user Ephemeral-Echo responds to Reh Rex04's comment by asking, \"In your country, how much do they cost, and by comparison, how much does the 32gb kit cost?\" This suggests that the user is interested in the cost of the DDR5 RAM kits available in their country.\n\n5. **Additional Comments**:\n   - **Ephemeral-Echo**: Another user, Ephemeral-Echo, responds to Reh Rex04's comment by asking, \"5 more replies.\" This indicates that there are more comments or replies to the original question.\n\n6. **Replies**:",
+      "transcript": ""
+    },
+    "c:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\media_only\\test.jpg": {
+      "file_name": "test.jpg",
+      "file_path": "c:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\media_only\\test.jpg",
+      "file_size_bytes": 15617,
+      "file_mtime": 1771119241.2819574,
+      "caption": "The image shows a ginger cat lying on a wooden floor. The cat has a fluffy, orange coat with white stripes on its face and paws. Its eyes are closed, and it appears to be resting or sleeping. The cat's ears are perked up, and it has a relaxed posture with its front paws stretched out in front of it. The wooden floor has a light brown color and a smooth texture, indicating it might be a laminate or hardwood type. The overall scene is calm and serene, with the cat appearing to be in a peaceful state.",
+      "transcript": ""
+    },
+    "c:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\test.mp3": {
+      "file_name": "test.mp3",
+      "file_path": "c:\\Users\\User\\My Files\\Docs\\Hackathon\\AI MINDS SMU\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\test.mp3",
+      "file_size_bytes": 371084,
+      "file_mtime": 1771119241.2849555,
+=======
+    "C:\\Users\\HP\\OneDrive\\Documents\\lang chain\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\test.mp3": {
+      "file_name": "test.mp3",
+      "file_path": "C:\\Users\\HP\\OneDrive\\Documents\\lang chain\\usb-c-MSB-Hackathon\\ai_minds_project\\data\\raw\\test.mp3",
+      "file_size_bytes": 371084,
+      "file_mtime": 1771088582.7347648,
+>>>>>>> 50da28a15386594caf77fd02bbbb8e063a56da7e
+      "transcript": "In a quiet village where the sky brushes the fields in hues of gold, young Mia discovered a map leading to forgotten treasures. Little did she know, her cat whiskers had a secret. He was the guardian of the map, tasked with guiding Mia to not only the treasure, but also to her destiny.",
+      "caption": ""
+    }
+  }
+}

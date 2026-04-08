@@ -1,0 +1,25 @@
+# Core Dependencies for AI Minds Memory System
+sentence-transformers>=2.2.2
+# torch>=2.0.1
+numpy>=1.26.0  # NumPy 1.26 is the first version to officially support Python 3.12
+requests>=2.31.0
+
+# File Processing
+PyPDF2>=3.0.1
+Pillow>=10.0.0
+mutagen==1.46.0
+
+# Audio Processing (Optional)
+faster-whisper>=1.0.0
+av>=10.0.0
+ctranslate2>=3.0.0
+
+# Data & Storage
+pandas>=2.1.1
+python-dotenv==1.0.0
+
+# Development
+pytest==7.4.0
+black==23.7.0
+
+qdrant_client
