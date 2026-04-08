@@ -68,7 +68,7 @@ def main():
     
     import uvicorn
     uvicorn.run(
-        "file_handling.server:app",
+        "file_handling.api.server:app",
         host=args.host,
         port=args.port,
         reload=args.reload

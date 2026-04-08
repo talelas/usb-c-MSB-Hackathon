@@ -1,6 +1,6 @@
 # Python
 venv/
-__pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
 *.pyd
@@ -10,9 +10,6 @@ __pycache__/
 *.egg-info/
 dist/
 build/
-
-file_handling/__pycache__/
-file_handling/tmp/
 
 # Environment
 .env
@@ -30,18 +27,24 @@ file_handling/tmp/
 Thumbs.db
 desktop.ini
 
-# Testing
-test_data/
-bulk_test/
-test_types/
+# Node
+node_modules/
 
-# Data and Logs
+# Data (add your input files locally — not tracked in git)
+backend/data/
 data/
 logs/
 *.log
 *.db
 *.sqlite
 *.sqlite3
+
+# Output (auto-generated graph exports — not tracked in git)
+backend/output/
+
+# Temporary cloud-download cache
+file_handling/tmp/*
+!file_handling/tmp/.gitkeep
 
 # Models
 models/
@@ -59,7 +62,3 @@ token.json
 *.tmp
 temp/
 tmp/
-
-
-add node modules
-node_modules/
