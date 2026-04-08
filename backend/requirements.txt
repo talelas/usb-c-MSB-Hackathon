@@ -1,0 +1,38 @@
+# ── Core ──────────────────────────────────────────────────────
+sentence-transformers>=2.2.2
+numpy>=1.26.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# ── Web framework ────────────────────────────────────────────
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+
+# ── Databases ────────────────────────────────────────────────
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.9
+redis>=5.0.0
+qdrant-client>=1.7.0
+
+# ── File processing ──────────────────────────────────────────
+PyPDF2>=3.0.1
+Pillow>=10.0.0
+
+# ── Audio transcription ──────────────────────────────────────
+faster-whisper>=1.0.0
+av>=10.0.0
+ctranslate2>=3.0.0
+
+# ── Image captioning (Qwen2-VL) ──────────────────────────────
+torch>=2.0.0
+transformers>=4.37.0
+accelerate>=0.26.0
+qwen-vl-utils
+
+# ── Graphs ───────────────────────────────────────────────────
+networkx>=3.2.0
+
+# ── Dev / test ───────────────────────────────────────────────
+pydantic>=2.5.0
+
+qdrant-client==1.7.3

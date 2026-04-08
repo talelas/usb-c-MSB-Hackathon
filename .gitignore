@@ -55,6 +55,7 @@ __pycache__/
 dist/
 build/
 
+
 file_handling/__pycache__/
 file_handling/tmp/
 
@@ -74,6 +75,13 @@ file_handling/tmp/
 Thumbs.db
 desktop.ini
 
+
+# Node
+node_modules/
+
+# Data (add your input files locally — not tracked in git)
+backend/data/
+
 # Testing
 test_data/
 bulk_test/
@@ -86,6 +94,14 @@ logs/
 *.db
 *.sqlite
 *.sqlite3
+
+
+# Output (auto-generated graph exports — not tracked in git)
+backend/output/
+
+# Temporary cloud-download cache
+file_handling/tmp/*
+!file_handling/tmp/.gitkeep
 
 # Models
 models/
@@ -103,3 +119,5 @@ token.json
 *.tmp
 temp/
 tmp/
+
+

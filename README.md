@@ -1,410 +1,135 @@
-# usb-c-MSB-Hackathon
+# Memoir — Multimodal RAG Knowledge System
 
-This repo contains the AI Minds multimodal ingestion pipeline (text, image, audio) plus a local caption server for Qwen2-VL.
+> **SMU AI MINDS Hackathon**
 
-## Prerequisites
-
-- Windows PowerShell
-- Python 3.10+ with venv
-- Disk space for models (Qwen2-VL and sentence-transformers)
-- Optional: Ollama running at http://localhost:11434 (for summaries/keywords)
-
-## One-time setup
-
-From the repo root:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r photoingestion\requirements.txt
-.\.venv\Scripts\python.exe -m pip install -r ai_minds_project\requirements.txt
-```
-
-If you already have the venv, just install missing deps:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install qwen-vl-utils faster-whisper sentence-transformers
-```
-
-## 1) Start the image caption server (Qwen2-VL)
-
-From the repo root:
-
-```powershell
-cd photoingestion
-..\.venv\Scripts\python.exe server.py
-```
-
-Expected logs:
-- "Model Loaded Successfully"
-- "Server running at http://127.0.0.1:5000"
-
-Note: This server responds to POST /analyze. Visiting the root URL in a browser shows "Not Found".
-
-## 2) Run media-only test (optional)
-
-Put test files here:
-- ai_minds_project/data/raw/media_only/test.jpg
-- ai_minds_project/data/raw/media_only/test.mp3
-
-Then run:
-
-```powershell
-cd ..\ai_minds_project
-..\.venv\Scripts\python.exe media_module_test.py
-```
-
-Expected:
-- Image caption shows non-empty text (may take 2-5 minutes on CPU)
-- Audio transcript shows non-empty text
-
-## 3) Run full pipeline
-
-```powershell
-cd ..\ai_minds_project
-..\.venv\Scripts\python.exe src\main.py
-```
-
-Outputs are written to:
-- ai_minds_project/output/metadata_embeddings.json
-- ai_minds_project/output/metadata_embeddings.csv
-
-## 3b) Run a single file
-
-Process one file and update outputs:
-
-```powershell
-cd ai_minds_project
-..\.venv\Scripts\python.exe run_single.py "data/raw/media_only/test.jpg"
-```
-
-## 4) (Optional) Qdrant demo
-
-If Qdrant is running locally, you can store and query media embeddings:
-
-```powershell
-cd ai_minds_project
-..\.venv\Scripts\python.exe qdrant_media_demo.py
-```
-
-## 4b) Qdrant similarity search
-
-Upsert embeddings and search by query text:
-
-```powershell
-cd ai_minds_project
-..\.venv\Scripts\python.exe qdrant_search.py --upsert --query "ginger cat on floor"
-```
-
-## Troubleshooting
-
-- Caption timeouts on CPU: Increase PHOTO_INGESTION_TIMEOUT in ai_minds_project/src/config.py (and config.py).
-- "Not Found" in browser: Use POST http://127.0.0.1:5000/analyze, not the root URL.
-- Ollama timeouts: Start Ollama or disable summarization in the pipeline.
-
-## Useful paths
-
-- Caption server: photoingestion/server.py
-- Main pipeline: ai_minds_project/src/main.py
-- Media test: ai_minds_project/media_module_test.py
-- Config: ai_minds_project/src/config.py
+Memoir is a modular **Retrieval-Augmented Generation (RAG)** system with graph-augmented search, real-time file watching, and a constellation-graph UI for exploring your knowledge base.
 
 ---
 
-# PROJECT CONTEXT — AI MINDS Cognitive Memory System
-
-## Objective
-
-Build a persistent multimodal cognitive assistant that:
-
-- Automatically ingests raw personal data
-- Converts it into structured semantic memory
-- Maintains relationships over time
-- Retrieves information using reasoning (not keyword matching)
-- Verifies its own answers before responding
-- Runs fully locally (LLM < 4B parameters)
-
-This is NOT a chatbot.
-
-This is a Graph-Augmented Persistent Memory Engine.
-
----
-
-# High-Level Architecture
-
-## 1) Multimodal Ingestion Layer
-
-The system continuously ingests:
-
-- Text
-- PDF documents
-- Images
-- Audio
-
-Each input passes through a modality adapter:
+## Architecture
 
 ```
-Raw Data
-   ↓
-Modality Adapter
-   ↓
-Unified Text Representation
-   ↓
-Embedding Model
+/
+├── backend/          # FastAPI RAG engine + ingestion pipeline
+├── file_handling/    # File-watching server (local + cloud polling)
+└── ui/               # Vite/React constellation-graph frontend
 ```
 
-Adapters:
-
-- PDF → text chunks
-- Image → caption model → text
-- Audio → speech-to-text → text
-- Text → cleaned & summarized
-
-All modalities become unified semantic text.
-
----
-
-# 2) Dual Storage Strategy
-
-For each memory item, we store:
-
-## Raw Layer
-
-- Original file
-- File path
-- Timestamp
-
-## Semantic Layer
-
-- Cleaned text summary
-- Embedding vector (256 dimensions)
-- Metadata vector:
-  - modality
-  - timestamp
-  - workspace
-  - importance score
-  - confidence score
-  - user interaction count
-
-Storage backend suggestion:
-
-- Qdrant (vector DB with metadata filtering)
-
----
-
-# 3) Vector + Metadata Coupled Representation
-
-Each memory item =
-
 ```
-{
-  id,
-  raw_reference,
-  text_summary,
-  embedding[256],
-  metadata {
-	  modality,
-	  timestamp,
-	  importance,
-	  confidence,
-	  workspace,
-	  interaction_score
-  }
-}
-```
-
-Metadata is NOT cosmetic. It influences retrieval scoring.
-
----
-
-# 4) Graph Memory Construction
-
-A semantic graph is built dynamically.
-
-Nodes:
-
-- Memory items
-
-Edges:
-Weighted relationships based on:
-
-```
-Edge Weight =
-  f(
-	semantic_similarity,
-	temporal_proximity,
-	shared_metadata,
-	co-occurrence,
-  )
-```
-
-This graph is NOT static. It evolves as new memories are added.
-
-Graph can be implemented using:
-
-- Lightweight graph layer (e.g. NetworkX)
-- Or adjacency stored in DB payload
-
----
-
-# 5) Retrieval & Reasoning Pipeline
-
-When a user asks a question:
-
-## Step 1 — Semantic Retrieval
-
-Query embedding → top-k vectors from Qdrant.
-
-## Step 2 — Graph Expansion
-
-Expand neighborhood around top-k nodes.
-
-## Step 3 — Relevance Scoring
-
-Final relevance score:
-
-```
-Score =
-  α * semantic_similarity
-+ β * graph_centrality
-+ γ * recency_score
-+ δ * importance_score
-```
-
-This prevents pure embedding search behavior.
-
----
-
-# 6) Self-Verification Layer
-
-Before answering:
-
-1. Generate draft answer using retrieved nodes.
-2. Check:
-   - Does answer reference retrieved memory IDs?
-   - Is there semantic agreement among top nodes?
-3. If confidence < threshold:
-   - Respond with uncertainty message.
-
-This avoids confident hallucination.
-
----
-
-# 7) Memory Adaptation Mechanism
-
-The system updates memory importance based on:
-
-- Query frequency
-- User feedback
-- Explicit reinforcement
-- Time decay
-
-Importance is dynamic.
-
-Memory behaves cognitively.
-
----
-
-# 8) Temporal Reasoning
-
-Recency affects retrieval but does not dominate.
-
-Temporal score example:
-
-```
-recency_score = e^(-λ * time_difference)
-```
-
-Allows:
-
-- Recent information prioritization
-- Old but important memories retained
-
----
-
-# 9) LLM Constraints
-
-Must comply with:
-
-- Local open-source model
-- < 4B parameters
-- No proprietary APIs
-
-Possible models:
-
-- TinyLlama
-- Phi-2
-- Small Mistral quantized (if allowed)
-
-Embedding model:
-
-- Lightweight local sentence-transformer
-
----
-
-# Innovation Points
-
-This system differs from standard RAG because:
-
-- It uses graph-augmented retrieval
-- It applies temporal reasoning
-- It maintains persistent memory
-- It performs self-verification
-- It adapts importance over time
-
-It behaves like a cognitive memory engine.
-
----
-
-# Folder Structure Suggestion
-
-```
-/core
-	ingestion.py
-	adapters/
-	embedding.py
-	storage.py
-	graph_builder.py
-	retrieval.py
-	reasoning.py
-	verification.py
-
-/models
-	local_llm/
-	embedding_model/
-
-/database
-	qdrant_config/
-
-/api
-	main.py
-
-/ui
-	interface.py
+User drops a file  ─►  file_handling (port 8080)
+                              │
+                    POST /api/ingest
+                              │
+                        backend (port 8000)
+                    ┌─────────┴──────────┐
+                  Qdrant             PostgreSQL
+                (vectors)           (metadata)
+                              │
+                           Redis
+                        (conversation)
+                              │
+                         Ollama LLM
+                              │
+                    ◄── RAG answer ──►  ui (port 5173)
 ```
 
 ---
 
-# System Flow Summary
+## Quick Start
 
-```
-New Data →
-	Adapt →
-		Embed →
-			Store →
-				Update Graph
+### 1. Start infrastructure (Docker)
 
-User Query →
-	Embed →
-		Retrieve →
-			Expand Graph →
-				Score →
-					Generate →
-						Verify →
-							Answer
+```bash
+cd backend
+docker compose up -d
 ```
+
+Starts **Qdrant** (`:6333`), **PostgreSQL** (`:5432`), and **Redis** (`:6379`).
+
+### 2. Pull the LLM
+
+```bash
+ollama pull llama3.2
+```
+
+### 3. Start the backend API
+
+```bash
+cd backend
+pip install -r requirements.txt
+cp .env.example .env   # fill in your values
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+API docs → **http://localhost:8000/docs**
+
+### 4. Start the file-watching server
+
+```bash
+cd file_handling
+pip install -r requirements.txt
+cp .env.example .env   # fill in GOOGLE_API_KEY etc.
+python run_server.py --port 8080
+```
+
+### 5. Start the frontend
+
+```bash
+cd ui
+npm install
+cp .env.example .env
+npm run dev
+```
+
+Frontend → **http://localhost:5173**
+
+<p align="center">
+  <img src="assets/constellation_screenshot.png" alt="Constellation UI screenshot" width="900" />
+</p>
 
 ---
 
-# Final Concept Name
+## Detailed Documentation
 
-Hybrid Graph-Augmented Persistent Semantic Memory System
+| Component | README | Additional Docs |
+|-----------|--------|-----------------|
+| Backend (FastAPI RAG) | [backend/README.md](backend/README.md) | [Relevance Verification](backend/docs/RELEVANCE_VERIFICATION.md) |
+| File Handling Server | [file_handling/README.md](file_handling/README.md) | [File Watching Guide](file_handling/docs/FILE_WATCHING.md) · [Drive Integration](file_handling/docs/DRIVE_LINK_INTEGRATION.md) |
+| Frontend (React) | [ui/README.md](ui/README.md) | [Integration Guide](ui/docs/INTEGRATION.md) · [Chat Debugging](ui/docs/CHAT_DEBUGGING.md) |
+
+---
+
+## Key Features
+
+- **Graph-augmented retrieval** — `score = α·semantic + β·centrality + γ·recency + δ·importance`
+- **Multimodal ingestion** — PDF, Word, images (VLM captioning), audio (Whisper), CSV, JSON
+- **Cloud file watching** — Monitor Google Drive & OneDrive folders; auto-ingest on change
+- **Conversation memory** — Redis-backed chat history with per-session context
+- **Constellation graph UI** — Interactive D3-powered knowledge graph explorer
+- **Relevance verification** — Optional LLM-pass to filter out low-quality retrieved chunks
+
+---
+
+## Environment Variables
+
+Each service has its own `.env.example` — copy to `.env` and fill in:
+
+| Service | Key Variables |
+|---------|---------------|
+| `backend/.env` | `POSTGRES_*`, `REDIS_*`, `QDRANT_*`, `OLLAMA_*`, `VLM_MODE` |
+| `file_handling/.env` | `GOOGLE_API_KEY`, `BACKEND_URL`, `MAX_QUEUE_SIZE`, `PROCESSING_WORKERS` |
+| `ui/.env` | `VITE_API_URL` |
+
+---
+
+## Data & Output (git-ignored)
+
+- **`backend/data/`** — Drop raw input files here (`data/raw/`). See [`backend/data/.gitkeep`](backend/data/.gitkeep).
+- **`backend/output/`** — Auto-generated graph JSON files. See [`backend/output/.gitkeep`](backend/output/.gitkeep).
+- **`file_handling/tmp/`** — Temporary cloud download cache.
+
+---
+
+## License
+
+MIT
